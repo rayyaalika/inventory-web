@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id('id_customer');
-            $table->enum('socmed_type', ['Line', 'Instagram', 'Shopee', 'WhatsApp'])->default('WhatsApp');
+            $table->enum('socmed_type', ['Line', 'Instagram', 'WhatsApp', 'Telegram'])->default('WhatsApp');
             $table->string('socmed_username')->nullable();
             $table->string('customer_name');
             $table->string('customer_phone_number');

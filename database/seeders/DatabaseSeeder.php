@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             DummyStoreSeeder::class,
             DummyProductsSeeder::class,
             DummyStocksSeeder::class,
+            DummySalesSeeder::class,
         ]);
     }
 }

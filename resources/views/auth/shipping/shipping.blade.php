@@ -12,7 +12,9 @@
         font-size: 8pt;
     }
   </style>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
 
 <body>
   <!--  Body Wrapper -->
@@ -161,23 +163,15 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-                            {{-- <div class="d-sm-flex d-block align-items-center justify-content-end mb-1 mt-10 font-button">
-                                <div class="mb-3 mb-sm-0">
-                                    <a href="#" class="btn btn-primary m-4">
-                                        <i class="ti ti-plus nav-small-cap-icon fs-3"></i>
-                                        Add New
-                                      </a>
-                                </div>
-                            </div> --}}
                           <table class="table font-button mt-5">
                             <thead>
                               <tr>
                                 <th>Action</th>
-                                <th>
+                                {{-- <th>
                                     <span class="form-check">
                                         <input class="form-check-input primary" type="checkbox" value="" id="selectAll">
                                     </span>
-                                </th>
+                                </th> --}}
                                 <th>Date</th>
                                 <th>SQ Numbering</th>
                                 <th>Socmed</th>
@@ -191,39 +185,97 @@
                               </tr>
                             </thead>
                             <tbody>
+                              @foreach ($sales as $sales)
                               <tr>
                                 <td>
-                                    <a href="#" class="edit" >
+                                  <div class="btn-group">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                      <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                      <li><a class="dropdown-item" href="#editSalesModal{{$sales->id_sales}}">Edit Sales</a></li>
+                                      <li><a class="dropdown-item" href="#addPaymentModal{{$sales->id_sales}}">Add Payment</a></li>
+                                      <li><a class="dropdown-item text-danger" href="#deleteSalesModal{{$sales->id_sales}}">Delete Sales</a></li>
+                                    </ul>
+                                  </div>
+                                    {{-- <a href="#" class="edit" >
                                         <i class="ti ti-pencil nav-small-cap-icon fs-3" data-toggle="tooltip" title="Edit"></i>
                                       </a>
                                       <a href="#" class="delete" data-bs-toggle="modal">
                                         <i class="ti ti-trash nav-small-cap-icon fs-3" data-toggle="tooltip" title="Delete"></i>
-                                    </a>
+                                    </a> --}}
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <span class="form-check">
                                         <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked">
                                     </span>
-                                </td>
-                                <td>May 3, 2024</td>
-                                <td>AB2435647</td>
-                                <td>Shopee</td>
-                                <td>Jeno Lee</td>
-                                <td>None</td>
-                                <td>136</td>
-                                <td>POST</td>
-                                <td>12345676</td>
+                                </td> --}}
+                                <td>{{ $sales->transaction_date }}</td>
+                                <td>{{ $sales->sq_numbering }}</td>
+                                <td>{{ $sales->socmed_type }}</td>
+                                <td>{{ $sales->customer_name }}</td>
+                                <td>{{ $sales->sales_note }}</td>
+                                <td>{{ $sales->total_order }}</td>
+                                <td>{{ $sales->delivery_company }}</td>
+                                <td>{{ $sales->resi_number }}</td>
                                 <td>
+                                  <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                    @csrf
                                   <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-success rounded-3 fw-semibold">Ready</span>
+                                    <div class="btn-group-a">
+                                      @php
+                                          $statusClass = '';
+                                          switch ($sales->sales_status) {
+                                              case 'Pending Address':
+                                                  $statusClass = 'btn-warning';
+                                                  break;
+                                              case 'Pending Shipment':
+                                                  $statusClass = 'btn-danger';
+                                                  break;
+                                              case 'Waiting List':
+                                                  $statusClass = 'btn-success';
+                                                  break;
+                                              case 'Ready to Approved':
+                                                  $statusClass = 'btn-info';
+                                                  break;
+                                              case 'Collected':
+                                                  $statusClass = 'btn-primary';
+                                                  break;
+                                              case 'Completed':
+                                                  $statusClass = 'btn-dark';
+                                                  break;
+                                              default:
+                                                  $statusClass = '';
+                                                  break;
+                                          }
+                                      @endphp                                      
+                                      <button id="dropdown-toggle{{$sales->id_sales}}" type="button" class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown" aria-expanded="false">
+                                          {{$sales->sales_status}}
+                                      </button>                                    
+                                      <ul class="dropdown-menu">
+                                        <li><button class="dropdown-item" type="button" value="Pending Address" onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button></li>
+                                        <li><button class="dropdown-item" type="button" value="Pending Shipment" onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button></li>
+                                        <li><button class="dropdown-item" type="button" value="Waiting List" onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                        <li><button class="dropdown-item" type="button" value="Ready to Approved" onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button></li>
+                                        <li><button class="dropdown-item" type="button" value="Collected" onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                        <li><button class="dropdown-item" type="button" value="Completed" onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                      </ul>
+                                    </div>
+                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status" value="{{$sales->sales_status}}">
                                   </div>
+                                </form>
                                 </td>
                                 <td>
                                   <div class="d-flex align-items-center gap-2">
+                                    @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' || $sales->sales_status == 'Waiting List')
                                     <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                    @else
+                                    <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                    @endif
                                   </div>
                                 </td>
                               </tr>
+                              @endforeach
                             </tbody>
                           </table>
                         </div>
@@ -296,10 +348,90 @@
   <script src="../assets/js/app.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
 
+  {{-- <script>
+    document.getElementById('applyButton').addEventListener('click', function() {
+      var storeSelect = document.getElementById('storeSelect').value;
+      var transactionDate = document.getElementById('transactionDate').value;
+      var sqNumbering = document.getElementById('sqNumbering').value;
+      var warehouseSelect = document.getElementById('warehouseSelect').value;
+      var staffInput = document.getElementById('staffInput').value;
+      
+      if (storeSelect && transactionDate && sqNumbering && warehouseSelect && staffInput) {
+        document.getElementById('salesFieldset').disabled = false;
+      } else {
+        alert('Please fill out all required fields before applying.');
+      }
+    });
+  </script> --}}
+
+
+<script>
+  function selectStatus(status, id) {
+      fetch(`/shipping/sales-status-update/${id}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+              sales_status: status
+          })
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Failed to update sales status');
+          }
+          const dropdownToggle = document.querySelector(`#dropdown-toggle${id}`); // Menggunakan ID unik untuk elemen dropdown
+          dropdownToggle.classList.remove(
+            'btn-warning',
+            'btn-danger', // Hapus kelas Bootstrap lainnya jika ada
+            'btn-success', // Hapus kelas Bootstrap lainnya jika ada
+            'btn-info', // Hapus kelas Bootstrap lainnya jika ada
+            'btn-primary' // Hapus kelas Bootstrap lainnya jika ada
+        );
+        switch (status) {
+            case '1':
+                dropdownToggle.textContent = 'Pending Address';
+                dropdownToggle.classList.add('btn-warning');
+                break;
+            case '2':
+                dropdownToggle.textContent = 'Pending Shipment';
+                dropdownToggle.classList.add('btn-danger'); // Ganti dengan kelas warna yang sesuai
+                break;
+            case '3':
+                dropdownToggle.textContent = 'Waiting List';
+                dropdownToggle.classList.add('btn-success'); // Ganti dengan kelas warna yang sesuai
+                break;
+            case '4':
+                dropdownToggle.textContent = 'Ready to Approved';
+                dropdownToggle.classList.add('btn-info'); // Ganti dengan kelas warna yang sesuai
+                break;
+            case '5':
+                dropdownToggle.textContent = 'Collected';
+                dropdownToggle.classList.add('btn-primary'); // Ganti dengan kelas warna yang sesuai
+                break;
+            case '6':
+                dropdownToggle.textContent = 'Completed';
+                dropdownToggle.classList.add('btn-dark'); // Ganti dengan kelas warna yang sesuai
+                break;
+            default:
+                break;
+          }
+          
+          window.location.reload();
+      })
+      .catch(error => {
+          console.error('Error updating sales status:', error);
+      });
+  }
+  </script>
+
+
   <!-- Bootstrap JS and jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
   $(document).ready(function(){
     $('#myTab a').on('click', function (e) {

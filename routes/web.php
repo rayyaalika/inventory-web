@@ -53,7 +53,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/product/delete/{id}', [ProductController::class,'delete_product']);
 
     Route::get('/sales', [SalesController::class,'index']);
+    Route::post('/sales/create', [SalesController::class,'create_sales']);
+    Route::post('/sales/purchase-product', [SalesController::class, 'purchaseProduct']);
+    Route::post('/sales/sales-status-update/{id}', [SalesController::class, 'update_status_sales']);
+
     Route::get('/shipping', [ShippingController::class,'index']);
+    Route::post('/shipping/sales-status-update/{id}', [ShippingController::class, 'update_status_sales']);
 
     Route::get('/profile/{id}', [ProfileController::class,'index']);
     Route::post('/profile/edit/{id}', [ProfileController::class,'edit_profile']); 

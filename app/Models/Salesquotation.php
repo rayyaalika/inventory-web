@@ -8,22 +8,37 @@ use Illuminate\Database\Eloquent\Model;
 class Salesquotation extends Model
 {
     use HasFactory;
-    protected $table = 'salesquotation';
+    protected $table = 'salesquotations';
     protected $primaryKey = 'id_sales';
     protected $fillable = [
-        'store_sales',
         'transaction_date',
         'sq_numbering',
+
+        'warehouse',
+        'staff_name',
+
+        'socmed_type',
+        'socmed_username',
+        'customer_name',
+        'customer_phone_number',
+        'customer_address',
+        'address_picture',
+
+        'delivery_company',
+        'payment_receipt',
+        'shipment_status',
+        'shipment_resi',
+
         'qty_sales',
         'total_order',
         'send_date',
         'sales_note',
         'sales_status',
-        'sales_resi',
+        'resi_number',
         'id_store',
         'id_product',
         'id_user',
-        'id_customer',
+        // 'id_customer',
     ];
 
     public function product()
@@ -46,8 +61,8 @@ class Salesquotation extends Model
         return $this->belongsTo(store::class, 'id_store', 'id_store');
     }
 
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'id_customer', 'id_customer');
-    }
+    // public function customer()
+    // {
+    //     return $this->belongsTo(Customer::class, 'id_customer', 'id_customer');
+    // }
 }
