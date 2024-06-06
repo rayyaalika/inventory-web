@@ -40,6 +40,7 @@ class ProductController extends Controller
     public function create_product(Request $request)
     {
         try {
+            
             $request->validate([
                 'product_name' => 'required',
                 'product_barcode' => 'required',
@@ -60,7 +61,7 @@ class ProductController extends Controller
                 'product_name' => $request->product_name,
                 'product_barcode' => $request->product_barcode,
                 'product_cost' => $request->product_cost,
-                'product_price' => $request->product_price,
+                'product_price' => $request->product_price ,
                 'alert_quantity' => $request->alert_quantity,
                 'group_unit' => $request->group_unit,
                 'default_inventory_unit' => $request->default_inventory_unit,
@@ -115,6 +116,7 @@ class ProductController extends Controller
 
         return redirect()->back()->with('success', 'Data user berhasil diubah!');
     }
+    
 
     public function edit_product(Request $request, $id)
     {

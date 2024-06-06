@@ -37,7 +37,7 @@ class DummySalesSeeder extends Seeder
                 'sales_note' => null,
                 'resi_number' => '23456756',
                 'id_store' => 1,
-                'id_product' => 1,
+                // 'id_product' => null,
                 'id_user' => 1,
             ],
             [
@@ -59,7 +59,7 @@ class DummySalesSeeder extends Seeder
                 'sales_note' => null,
                 'resi_number' => '68732462',
                 'id_store' => 1,
-                'id_product' => 1,
+                // 'id_product' => null,
                 'id_user' => 1,
             ],
         ];

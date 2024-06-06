@@ -42,13 +42,13 @@ return new class extends Migration
 
 
             $table->unsignedBigInteger('id_store');
-            $table->unsignedBigInteger('id_product');
+            // $table->unsignedBigInteger('id_product')->nullable();
             $table->unsignedBigInteger('id_user');
             // $table->unsignedBigInteger('id_customer');
             $table->timestamps();
 
             $table->foreign('id_store')->references('id_store')->on('stores');
-            $table->foreign('id_product')->references('id_product')->on('products');
+            // $table->foreign('id_product')->references('id_product')->on('products');
             $table->foreign('id_user')->references('id_user')->on('users');
             // $table->foreign('id_customer')->references('id_customer')->on('customers');
         });

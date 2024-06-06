@@ -11,31 +11,25 @@ class AdminController extends Controller
     function index()
     {
         return view('auth.dashboard.dashboard');
-        // echo "<h1>" . Auth::user()->name . "</h1>";
-        // echo "<a href='/logout'>Logout >></a>";
     }
 
     function storeadmin()
     {
-        echo "<h1>" . Auth::user()->name . "</h1>";
-        echo "<a href='/logout'>Logout >></a>";
+        return view('auth.dashboard.dashboard');
     }
 
     function supplier()
     {
-        echo "<h1>" . Auth::user()->name . "</h1>";
-        echo "<a href='/logout'>Logout >></a>";
+        return view('auth.dashboard.dashboard');
     }
 
     function customerservice()
     {
-        echo "<h1>" . Auth::user()->name . "</h1>";
-        echo "<a href='/logout'>Logout >></a>";
+        return view('auth.dashboard.dashboard');
     }
 
     function salesorder()
     {
-        echo "<h1>" . Auth::user()->name . "</h1>";
-        echo "<a href='/logout'>Logout >></a>";
+        return view('auth.dashboard.dashboard');
     }
 }

@@ -65,14 +65,14 @@ class Product extends Model
         return $this->belongsTo(Supplier::class, 'id_supplier', 'id_supplier');
     }
 
-    public function salesquotation()
+    public function salesproduct()
     {
-        return $this->hasMany(Salesquotation::class, 'id_sales');
+        return $this->hasMany(salesproduct::class, 'id_salesproduct', 'id_salesproduct');
     }
 
     public function forecasting()
     {
-        return $this->hasMany(Forecasting::class, 'id_forecasting');
+        return $this->hasMany(Forecasting::class, 'id_forecasting', 'id_forecasting');
     }
 
     public function user()
