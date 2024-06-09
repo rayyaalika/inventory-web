@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesController;
@@ -58,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales/sales-status-update/{id}', [SalesController::class, 'update_status_sales']);
     Route::get('/sales/get-product-price/{id}', [SalesController::class, 'getProductPrice']);
     Route::delete('/sales/delete/{id}', [SalesController::class,'delete_sales']);
+    Route::get('/sales/get-sales-products/{salesId}', [SalesController::class, 'getEditProduct']);
     Route::post('/sales/edit/{id}', [SalesController::class,'edit_sales']);
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);

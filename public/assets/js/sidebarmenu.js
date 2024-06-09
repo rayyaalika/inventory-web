@@ -50,3 +50,88 @@ $(function () {
       e.preventDefault();
     });
   });
+
+// $(function () {
+//   "use strict";
+
+//   // Function to handle AJAX content loading
+//   function loadPage(url) {
+//       $.ajax({
+//           url: url,
+//           success: function (data) {
+//               var newContent = $(data).find("#content").html();
+//               $("#content").html(newContent);
+//               history.pushState(null, '', url);
+//           },
+//           error: function () {
+//               alert("Error loading page");
+//           }
+//       });
+//   }
+
+//   var url = window.location + "";
+//   var path = url.replace(
+//       window.location.protocol + "//" + window.location.host + "/",
+//       ""
+//   );
+//   var element = $("ul#sidebarnav a").filter(function () {
+//       return this.href === url || this.href === path;
+//   });
+//   element.parentsUntil(".sidebar-nav").each(function (index) {
+//       if ($(this).is("li") && $(this).children("a").length !== 0) {
+//           $(this).children("a").addClass("active");
+//           $(this).parent("ul#sidebarnav").length === 0
+//               ? $(this).addClass("active")
+//               : $(this).addClass("selected");
+//       } else if (!$(this).is("ul") && $(this).children("a").length === 0) {
+//           $(this).addClass("selected");
+//       } else if ($(this).is("ul")) {
+//           $(this).addClass("in");
+//       }
+//   });
+
+//   element.addClass("active");
+
+//   $("#sidebarnav a").on("click", function (e) {
+//       e.preventDefault();
+//       var targetUrl = $(this).attr("href");
+
+//       // Load content via AJAX
+//       loadPage(targetUrl);
+
+//       if (!$(this).hasClass("active")) {
+//           // hide any open menus and remove all other classes
+//           $("ul", $(this).parents("ul:first")).removeClass("in");
+//           $("a", $(this).parents("ul:first")).removeClass("active");
+
+//           // open our new menu and add the open class
+//           $(this).next("ul").addClass("in");
+//           $(this).addClass("active");
+//       } else if ($(this).hasClass("active")) {
+//           $(this).removeClass("active");
+//           $(this).parents("ul:first").removeClass("active");
+//           $(this).next("ul").removeClass("in");
+//       }
+//   });
+
+//   $("#sidebarnav >li >a.has-arrow").on("click", function (e) {
+//       e.preventDefault();
+//   });
+
+//   // Toggle sidebar on small screens
+//   $('#toggle-sidebar').on('click', function () {
+//       $('#sidebarnav').toggleClass('minimized');
+//   });
+
+//   // Restore the state of the sidebar on page load
+//   $(window).on('resize', function () {
+//       if ($(window).width() > 768) {
+//           $('#sidebarnav').removeClass('minimized');
+//       }
+//   });
+
+//   // Handle browser back and forward buttons
+//   window.onpopstate = function () {
+//       loadPage(window.location.pathname);
+//   };
+// });

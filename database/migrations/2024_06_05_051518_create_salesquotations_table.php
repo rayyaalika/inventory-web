@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('salesquotations', function (Blueprint $table) {
             $table->id('id_sales');
-            $table->dateTime('transaction_date');
+            $table->date('transaction_date');
             $table->string('sq_numbering');
 
             $table->string('warehouse');

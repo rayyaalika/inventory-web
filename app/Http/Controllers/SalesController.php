@@ -16,7 +16,7 @@ class SalesController extends Controller
     {
         // return view('auth.sales.sales');
 
-        $sales = Salesquotation::all();
+        $sales = Salesquotation::with('salesproduct.product')->get();
         $store = Store::all();
         $product = Product::all();
         $salesproduct = salesproduct::all();
@@ -166,12 +166,23 @@ class SalesController extends Controller
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 
+    public function getProductEdit($salesId)
+    {
+        $sales = Salesquotation::with('salesproduct.product')
+            ->where('id_sales', $salesId)
+            ->first();
+        return response()->json($sales);
+    }
+
     public function edit_sales(Request $request, $id_sales)
     {
         $sales = Salesquotation::find($id_sales);
         if (!$sales) {
             return redirect()->back()->with('error', 'Sales not found!');
         }
+
+        // Ambil data produk terkait dengan penjualan
+        $products = $sales->salesproduct;
 
         $salesproductData = json_decode($request->input('salesproduct_data'), true);
 
@@ -240,6 +251,8 @@ class SalesController extends Controller
                 }
             }
         }
+
+        $products = $sales->salesproduct;
 
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }

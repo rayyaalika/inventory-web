@@ -67,7 +67,7 @@ class Product extends Model
 
     public function salesproduct()
     {
-        return $this->hasMany(salesproduct::class, 'id_salesproduct', 'id_salesproduct');
+        return $this->hasMany(salesproduct::class, 'id_product', 'id_product');
     }
 
     public function forecasting()

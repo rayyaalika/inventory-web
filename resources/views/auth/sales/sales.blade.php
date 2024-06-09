@@ -231,16 +231,16 @@
                                                                     data-toggle="tooltip" title="Actions"></i>
                                                             </button>
                                                             <ul class="dropdown-menu">
-                                                                <li><a class="dropdown-item" href="#"
+                                                                <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
                                                                         data-target="#editSalesModal{{ $sales->id_sales }}">Edit
                                                                         Sales</a></li>
-                                                                <li><a class="dropdown-item" href="#"
+                                                                <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
                                                                         data-target="#paymentSalesModal{{ $sales->id_sales }}">Add
                                                                         Payment</a></li>
                                                                 <li><a class="dropdown-item text-danger"
-                                                                        href="#" data-toggle="modal"
+                                                                        href="" data-toggle="modal"
                                                                         data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
                                                                         Sales</a>
                                                                 </li>
@@ -432,7 +432,7 @@
                                                     <label class="form-label">Transaction Date<span
                                                             class="text-danger">*</span></label>
                                                     <input id="transactionDate" name="transaction_date"
-                                                        type="datetime-local" class="form-control" required>
+                                                        type="date" class="form-control" required>
                                                 </div>
                                                 <div class="col">
                                                     <label class="form-label">SQ Numbering<span
@@ -632,7 +632,7 @@
                                                                     class="text-danger">*</span></label>
                                                             <input id="transactionDate" name="transaction_date"
                                                                 value="{{ $sales->transaction_date }}"
-                                                                type="datetime-local" class="form-control" required>
+                                                                type="date" class="form-control" required>
                                                         </div>
                                                         <div class="col">
                                                             <label class="form-label">SQ Numbering<span
@@ -760,7 +760,8 @@
                                                 <div class="row mb-3">
                                                     <div class="col">
                                                         <label class="form-label">Select Product</label>
-                                                        <select id="productSelect{{ $sales->id_sales }}" class="form-select">
+                                                        <select id="productSelect{{ $sales->id_sales }}"
+                                                            class="form-select">
                                                             <option value="" selected>- select -</option>
                                                             @foreach ($product as $item)
                                                                 <option value="{{ $item->id_product }}">
@@ -770,15 +771,17 @@
                                                     </div>
                                                     <div class="col">
                                                         <label class="form-label">Quantity</label>
-                                                        <input id="quantityInput{{ $sales->id_sales }}" type="number" class="form-control"
-                                                               min="1">
+                                                        <input id="quantityInput{{ $sales->id_sales }}"
+                                                            type="number" class="form-control" min="1">
                                                     </div>
                                                     <div class="col d-flex justify-content-end">
-                                                        <button type="button" id="addProductButton{{ $sales->id_sales }}"
-                                                                class="btn btn-info m-4">Add</button>
+                                                        <button type="button"
+                                                            id="addProductButton{{ $sales->id_sales }}"
+                                                            class="btn btn-info m-4">Add</button>
                                                     </div>
                                                 </div>
-                                                <table id="productTable{{ $sales->id_sales }}" class="table font-button mb-3">
+                                                <table id="productTable{{ $sales->id_sales }}"
+                                                    class="table font-button mb-3">
                                                     <thead>
                                                         <tr>
                                                             <th>Product SKU</th>
@@ -791,35 +794,53 @@
                                                     </thead>
                                                     <tbody>
                                                         <!-- Product items will be added dynamically here -->
+                                                        @foreach ($sales->salesproduct as $salesproduct)
+                                                            <tr>
+                                                                <th>{{$salesproduct->product->product_barcode}}</th>
+                                                                <th>{{$salesproduct->product->product_name}}</th>
+                                                                <th>{{$salesproduct->salesproduct_price}}</th>
+                                                                <th>{{$salesproduct->quantity}}</th>
+                                                                <th>{{$salesproduct->salesproduct_price . $sales->quantity}}</th>
+                                                                <th>del</th>
+                                                            </tr>
+                                                        @endforeach
                                                     </tbody>
                                                 </table>
-                                                <div class="d-sm-flex d-block align-items-center justify-content-between mb-3">
+                                                <div
+                                                    class="d-sm-flex d-block align-items-center justify-content-between mb-3">
                                                     <div class="m-1">
                                                         <label class="form-label">Send Date</label>
-                                                        <input name="send_date" type="date" class="form-control" value="{{ $sales->send_date }}">
+                                                        <input name="send_date" type="date" class="form-control"
+                                                            value="{{ $sales->send_date }}">
                                                     </div>
                                                     <div class="me-5">
                                                         <label class="form-label">Total Order</label>
-                                                        <div id="totalOrder{{ $sales->id_sales }}" class="d-flex align-items-center gap-2">
-                                                            <span class="badge bg-primary rounded-3 fw-semibold">$ {{ $sales->total_order }}</span>
+                                                        <div id="totalOrder{{ $sales->id_sales }}"
+                                                            class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-primary rounded-3 fw-semibold">$
+                                                                {{ $sales->total_order }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="d-sm-flex d-block align-items-center justify-content-start mb-3">
+                                                <div
+                                                    class="d-sm-flex d-block align-items-center justify-content-start mb-3">
                                                     <div class="m-1">
                                                         <label class="form-label">Notes</label>
-                                                        <textarea name="sales_note" class="form-control" placeholder="Leave a note here"
-                                                                  style="height: 100px">{{ $sales->sales_note }}</textarea>
+                                                        <textarea name="sales_note" class="form-control" placeholder="Leave a note here" style="height: 100px">{{ $sales->sales_note }}</textarea>
                                                     </div>
                                                 </div>
                                                 <hr>
-                                                <div class="modal-footer d-sm-flex d-block align-items-center justify-content-end mb-1">
-                                                    <input type="button" class="btn btn-default m-1" data-dismiss="modal" value="Cancel">
-                                                    <input type="hidden" id="salesProductData{{ $sales->id_sales }}" name="salesproduct_data">
+                                                <div
+                                                    class="modal-footer d-sm-flex d-block align-items-center justify-content-end mb-1">
+                                                    <input type="button" class="btn btn-default m-1"
+                                                        data-dismiss="modal" value="Cancel">
+                                                    <input type="hidden" id="salesProductData{{ $sales->id_sales }}"
+                                                        name="salesproduct_data">
                                                     <input type="hidden" name="qty_sales" value="0">
                                                     <input type="hidden" name="payment_receipt" value="">
                                                     <input type="hidden" name="resi_number" value="">
-                                                    <input id="submitButton{{ $sales->id_sales }}" type="button" class="btn btn-primary m-1" value="Update Sales">
+                                                    <input id="submitButton{{ $sales->id_sales }}" type="button"
+                                                        class="btn btn-primary m-1" value="Update Sales">
                                                 </div>
                                             </div>
                                         </form>
@@ -887,150 +908,10 @@
         });
     </script>
 
-    {{-- <script>
-        $(document).ready(function() {
-            var products = [];
-
-            $('#addProductButton').click(function() {
-                var productId = $('#productSelect').val();
-                var productName = $('#productSelect option:selected').text();
-                var quantity = $('#quantityInput').val();
-
-                if (productId && quantity) {
-                    $.ajax({
-                        url: '/get-product-price/' + productId,
-                        method: 'GET',
-                        success: function(response) {
-                            var productPrice = response.price;
-                            var productBarcode = response.barcode;
-
-                            var product = {
-                                id_product: productId,
-                                product_name: productName,
-                                product_price: productPrice,
-                                product_barcode: productBarcode,
-                                qty_sales: quantity
-                            };
-
-                            products.push(product);
-                            updateProductTable();
-                            updateProductsInput();
-                            updateTotalOrder();
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error fetching product price:', error);
-                        }
-                    });
-                }
-            });
-
-            function updateProductTable() {
-                $('#productTable tbody').empty();
-
-                for (var i = 0; i < products.length; i++) {
-                    var subtotal = products[i].product_price * products[i].qty_sales;
-
-                    var row = '<tr>' +
-                        '<td>' + products[i].product_barcode + '</td>' +
-                        '<td>' + products[i].product_name + '</td>' +
-                        '<td>' + products[i].product_price + '</td>' +
-                        '<td>' + products[i].qty_sales + '</td>' +
-                        '<td>' + subtotal + '</td>' +
-                        '<td><button class="btn btn-danger remove-product"><i class="ti ti-trash nav-small-cap-icon fs-3"></i></button></td>' +
-                        '</tr>';
-
-                    $('#productTable tbody').append(row);
-                }
-
-                // Attach event handler for remove buttons
-                $('.remove-product').click(function() {
-                    var rowIndex = $(this).closest('tr').data('index');
-                    products.splice(rowIndex, 1);
-                    updateProductTable();
-                    updateProductsInput();
-                    updateTotalOrder();
-                });
-            }
-
-
-            function updateProductsInput() {
-                $('#productsInput').val(JSON.stringify(products));
-            }
-
-            function calculateTotalOrder() {
-                var total = 0;
-                $('#productTable tbody tr').each(function() {
-                    var subtotal = parseFloat($(this).find('td:eq(4)').text());
-                    total += subtotal;
-                });
-                return total;
-            }
-
-            // Panggil fungsi ini setiap kali produk ditambahkan atau dihapus dari tabel
-            function updateTotalOrder() {
-                var totalOrder = calculateTotalOrder();
-                $('#totalOrder .badge').text('$' + totalOrder.toFixed(
-                    2)); // Menampilkan total dengan format mata uang
-            }
-
-        });
-    </script>
-
-    <script>
-        document.getElementById('submitButton').addEventListener('click', function() {
-            var storeSelect = document.getElementById('storeSelect').value;
-            var transactionDate = document.getElementById('transactionDate').value;
-            var sqNumbering = document.getElementById('sqNumbering').value;
-            var warehouseSelect = document.getElementById('warehouseSelect').value;
-            var staffInput = document.getElementById('staffInput').value;
-
-            // Lakukan validasi
-            if (!(storeSelect && transactionDate && sqNumbering && warehouseSelect && staffInput)) {
-                alert('Please fill out all required fields before applying.');
-                return; // Jika validasi gagal, hentikan proses lebih lanjut
-            }
-
-            // Mengumpulkan data produk
-            // var products = [];
-            // var productRows = document.getElementById('productTable').getElementsByTagName('tbody')[0]
-            //     .getElementsByTagName('tr');
-            // for (var i = 0; i < productRows.length; i++) {
-            //     var productId = productRows[i].getElementsByTagName('td')[0].innerText;
-            //     var productName = productRows[i].getElementsByTagName('td')[1].innerText;
-            //     var salesPrice = productRows[i].getElementsByTagName('td')[2].innerText;
-            //     var quantity = productRows[i].getElementsByTagName('td')[3].innerText;
-            //     var subTotal = productRows[i].getElementsByTagName('td')[4].innerText;
-
-            //     products.push({
-            //         salesproduct_id: productId,
-            //         salesproduct_name: productName,
-            //         salesproduct_price: salesPrice,
-            //         quantity: quantity,
-            //         sub_total: subTotal
-            //     });
-            // }
-
-            var salesproductData = products.map(function(product) {
-                return {
-                    salesproduct_name: product.salesproduct_name,
-                    quantity: parseInt(product.quantity),
-                    salesproduct_price: parseFloat(product.salesproduct_price)
-                };
-            });
-            document.getElementById('salesProductData').value = JSON.stringify(salesproductData);
-
-            // Set input value dengan data produk yang dikumpulkan
-            // document.getElementById('salesProductData').value = JSON.stringify(products);
-            // Submit form
-            document.getElementById('salesForm').submit();
-        });
-    </script> --}}
-
-    @foreach ($salesData as $sales)
     <script>
         $(document).ready(function() {
-            var products = @json($sales->salesProducts); // Assuming $sales->salesProducts contains the existing products for this sale
-
+            var products =
+            @json($sales->salesproducts); // Assuming $sales->salesProducts contains the existing products for this sale
             // Initialize the product table with existing products
             updateProductTable({{ $sales->id_sales }});
             updateProductsInput({{ $sales->id_sales }});
@@ -1138,8 +1019,9 @@
                 var sendDate = $('input[name="send_date"]').val();
                 var salesNote = $('textarea[name="sales_note"]').val();
                 var salesProductData = $('#salesProductData{{ $sales->id_sales }}').val();
-                
-                if (storeSelect && transactionDate && sqNumbering && warehouseSelect && staffInput && customerName) {
+
+                if (storeSelect && transactionDate && sqNumbering && warehouseSelect && staffInput &&
+                    customerName) {
                     $('#salesForm{{ $sales->id_sales }}').submit();
                 } else {
                     alert('Please fill out all required fields.');
@@ -1147,8 +1029,6 @@
             });
         });
     </script>
-    @endforeach
-
 
     <script>
         $(document).ready(function() {
@@ -1266,136 +1146,6 @@
         });
     </script>
 
-    {{-- <script>
-      $(document).ready(function() {
-          var products = [];
-
-          // Set CSRF token globally for AJAX requests
-          $.ajaxSetup({
-              headers: {
-                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-              }
-          });
-
-          $('#addProductButton').click(function() {
-              var productId = $('#productSelect').val();
-              var productName = $('#productSelect option:selected').text();
-              var quantity = $('#quantityInput').val();
-
-              if (productId && quantity) {
-                  $.ajax({
-                      url: '/get-product-details/' + productId,
-                      method: 'GET',
-                      success: function(data) {
-                          console.log('Product details:', data);  // Log product details
-                          var product = {
-                              id_product: productId,
-                              product_code: data.product_code,
-                              product_name: productName,
-                              product_price: data.product_price,
-                              qty_sales: quantity
-                          };
-
-                          products.push(product);
-                          console.log('Product added:', product);  // Log the added product
-                          updateProductTable();
-                          updateProductsInput();
-                          updateTotalOrder();
-
-                          // Send the quantity to the server to update stock
-                          updateStock(productId, quantity);
-                      },
-                      error: function(xhr, status, error) {
-                          console.error('Error fetching product details:', error);
-                      }
-                  });
-              } else {
-                  alert('Please select a product and enter quantity.');
-              }
-          });
-
-          function updateStock(productId, quantity) {
-              $.ajax({
-                  url: '/update-stock/' + productId,
-                  method: 'POST',
-                  data: {
-                      quantity: quantity
-                  },
-                  success: function(response) {
-                      console.log('Stock updated successfully:', response);
-                  },
-                  error: function(xhr, status, error) {
-                      console.error('Error updating stock:', error);
-                  }
-              });
-          }
-
-          function updateProductTable() {
-              $('#productTable tbody').empty();
-
-              for (var i = 0; i < products.length; i++) {
-                  var subtotal = products[i].product_price * products[i].qty_sales;
-
-                  var row = '<tr data-index="' + i + '">' +
-                      '<td>' + products[i].product_code + '</td>' +
-                      '<td>' + products[i].product_name + '</td>' +
-                      '<td>' + products[i].product_price + '</td>' +
-                      '<td>' + products[i].qty_sales + '</td>' +
-                      '<td>' + subtotal + '</td>' +
-                      '<td><button class="btn btn-danger remove-product"><i class="fas fa-trash-alt"></i></button></td>' +
-                      '</tr>';
-
-                  $('#productTable tbody').append(row);
-              }
-
-              // Attach event handler for remove buttons
-              $('.remove-product').click(function() {
-                  var rowIndex = $(this).closest('tr').data('index');
-                  removeProduct(rowIndex);
-              });
-          }
-
-          function removeProduct(index) {
-              var product = products[index];
-              var productId = product.id_product;
-
-              $.ajax({
-                  url: '/remove-product/' + productId,
-                  method: 'POST',
-                  data: {
-                      id_product: productId
-                  },
-                  success: function(response) {
-                      products.splice(index, 1);
-                      updateProductTable();
-                      updateProductsInput();
-                      updateTotalOrder();
-                  },
-                  error: function(xhr, status, error) {
-                      console.error('Error removing product:', error);
-                  }
-              });
-          }
-
-          function updateProductsInput() {
-              $('#productsInput').val(JSON.stringify(products));
-          }
-
-          function calculateTotalOrder() {
-              var total = 0;
-              $('#productTable tbody tr').each(function() {
-                  var subtotal = parseFloat($(this).find('td:eq(4)').text());
-                  total += subtotal;
-              });
-              return total;
-          }
-
-          function updateTotalOrder() {
-              var totalOrder = calculateTotalOrder();
-              $('#totalOrder .badge').text('$' + totalOrder.toFixed(2));
-          }
-      });
-    </script> --}}
 
 
     <!-- Bootstrap JS and jQuery -->

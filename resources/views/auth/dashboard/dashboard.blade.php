@@ -157,7 +157,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Sales</h5>
-                          <h4 class="fw-semibold mb-1">$6,820</h4>
+                          <h4 class="fw-semibold mb-1">${{ $totalSalesAmount }}</h4>
                         </div>
                       </div>
                     </div>
@@ -177,7 +177,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Order</h5>
-                          <h4 class="fw-semibold mb-1">320</h4>
+                          <h4 class="fw-semibold mb-1">{{ $totalSales }}</h4>
                         </div>
                       </div>
                     </div>
@@ -197,7 +197,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Shipping</h5>
-                          <h4 class="fw-semibold mb-1">113</h4>
+                          <h4 class="fw-semibold mb-1">{{ $totalCollectedDeliveries }}</h4>
                         </div>
                       </div>
                     </div>
