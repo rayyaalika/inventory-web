@@ -27,32 +27,24 @@
                 <form>
                   <div class="mb-3">
                     <label for="exampleInputtext1" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="exampleInputtext1" aria-describedby="textHelp">
+                    <input type="text" class="form-control" id="exampleInputtext1" aria-describedby="textHelp" required>
                   </div>
                   <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
                   </div>
-                  {{-- <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Role</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                  </div> --}}
                   <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <input type="password" class="form-control" id="exampleInputPassword1" required>
                   </div>
-                  <div class="mb-4">
-                    {{-- <label for="exampleInputEmail1" class="form-label">Role</label> --}}
-                    <div class="dropdown">
-                      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Role
-                      </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="#">Store Admin</a></li>
-                        <li><a class="dropdown-item" href="#">Supplier</a></li>
-                        <li><a class="dropdown-item" href="#">Customer Service</a></li>
-                        <li><a class="dropdown-item" href="#">Sales Order</a></li>
-                      </ul>
+                  <div class="mb-3">
+                    <div class="mb-5">
+                      <label class="form-label">Select Role</label>
+                      <select name="role" class="form-select" aria-label="role" required>
+                        <option value="2">Store Admin</option>
+                        <option value="3">Customer Service</option>
+                        <option value="4">Sales Order</option>
+                      </select>
                     </div>
                   </div>
                   <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Sign Up</a>

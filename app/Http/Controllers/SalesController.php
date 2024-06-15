@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\salesproduct;
-use App\Models\Salesquotation;
 use App\Models\Stock;
 use App\Models\Store;
+use App\Models\Product;
+use App\Models\salesproduct;
 use Illuminate\Http\Request;
+use App\Models\Salesquotation;
+use Illuminate\Support\Facause;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SalesController extends Controller
 {
@@ -47,14 +49,33 @@ class SalesController extends Controller
             'socmed_username' => 'nullable',
             'customer_phone_number' => 'nullable',
             'customer_address' => 'nullable',
+            'address_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'delivery_company' => 'nullable',
-            'payment_receipt' => 'nullable',
+            'payment_receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'send_date' => 'nullable|date',
             'sales_note' => 'nullable',
             'resi_number' => 'nullable',
         ]);
 
         $user_id = Auth::id();
+
+        // Tangani unggahan gambar jika ada
+        if ($request->hasFile('address_picture')) {
+            // Simpan gambar ke penyimpanan
+            $imagePath = $request->file('address_picture')->store('address_pictures', 'public');
+
+            // Simpan path gambar ke dalam database
+            $validated['address_picture'] = $imagePath;
+        }
+
+        // Tangani unggahan gambar jika ada
+        if ($request->hasFile('payment_receipt')) {
+            // Simpan gambar ke penyimpanan
+            $imagePath = $request->file('payment_receipt')->store('payment_receipt', 'public');
+
+            // Simpan path gambar ke dalam database
+            $validated['payment_receipt'] = $imagePath;
+        }
 
         $sales = Salesquotation::create([
             'id_store' => $validated['id_store'],
@@ -68,6 +89,7 @@ class SalesController extends Controller
             'socmed_username' => $validated['socmed_username'],
             'customer_phone_number' => $validated['customer_phone_number'],
             'customer_address' => $validated['customer_address'],
+            'address_picture' => $validated['address_picture'],
             'delivery_company' => $validated['delivery_company'],
             'payment_receipt' => $validated['payment_receipt'],
             'total_order' => collect($salesproductData)->sum(function ($product) {
@@ -225,52 +247,34 @@ class SalesController extends Controller
         // Update atau tambahkan data produk penjualan
         $total_order = 0; // Total order sementara
 
-        // Array untuk menyimpan ID produk yang akan dihapus
-        $productsToRemove = $sales->salesproduct->pluck('id_product')->toArray();
-
         // Update atau tambahkan data salesproduct
         foreach ($salesproductData as $product) {
             $existingProduct = $sales->salesproduct->where('id_product', $product['id_product'])->first();
-
+        
             if ($existingProduct) {
                 // Jika produk sudah ada dalam penjualan, update kuantitasnya
-                $existingQuantity = $existingProduct->quantity;
-                $newQuantity = $product['quantity'];
-                $quantityDifference = $newQuantity - $existingQuantity;
-
+                $quantityBefore = $existingProduct->quantity; // Kuantitas sebelumnya
                 $existingProduct->update([
-                    'quantity' => $newQuantity,
+                    'quantity' => $product['quantity'],
                 ]);
-
+        
                 // Kurangi atau tambahkan stok berdasarkan perubahan kuantitas
+                $quantityDifference = $product['quantity'] - $quantityBefore; // Selisih kuantitas
                 $stockData = Stock::where('id_product', $product['id_product'])->first();
                 if ($stockData) {
-                    if ($quantityDifference > 0) {
-                        // Jika kuantitas produk bertambah, kurangi stok dari gudang
-                        $stockData->wh_stock -= $quantityDifference;
-                        $stockData->out_stock += $quantityDifference;
-                    } else if ($quantityDifference < 0) {
-                        // Jika kuantitas produk berkurang, tambahkan stok kembali ke gudang
-                        $stockData->wh_stock -= $quantityDifference;
-                        $stockData->out_stock += $quantityDifference;
-                    }
-                    $stockData->save(); // Simpan perubahan stok
-                }
-
-                // Hapus ID produk dari array jika produk masih ada
-                $index = array_search($product['id_product'], $productsToRemove);
-                if ($index !== false) {
-                    unset($productsToRemove[$index]);
+                    $stockData->wh_stock -= $quantityDifference; // Kurangi stok gudang
+                    $stockData->out_stock += $quantityDifference; // Tambah stok keluar
+                    $stockData->save(); // Simpan perubahan
                 }
             } else {
                 // Jika produk belum ada dalam penjualan, tambahkan produk baru
-                $sales->salesproduct()->create([
+                $newProduct = $sales->salesproduct()->create([
                     'salesproduct_name' => $product['product_name'],
                     'salesproduct_price' => $product['salesproduct_price'],
                     'quantity' => $product['quantity'],
                     'id_product' => $product['id_product'],
                 ]);
-
+        
                 // Kurangi stok saat produk baru ditambahkan
                 $stockData = Stock::where('id_product', $product['id_product'])->first();
                 if ($stockData) {
@@ -279,17 +283,19 @@ class SalesController extends Controller
                     $stockData->save(); // Simpan perubahan
                 }
             }
-
+        
             // Hitung total_order
             $total_order += $product['quantity'] * $product['salesproduct_price'];
         }
 
+
         // Hapus salesproduct yang tidak ada dalam data baru
+        $productsToRemove = $sales->salesproduct->pluck('id_product')->diff(collect($salesproductData)->pluck('id_product'));
         if (!empty($productsToRemove)) {
             foreach ($productsToRemove as $productId) {
                 // Ambil kuantitas produk yang dihapus
                 $quantityToRemove = $sales->salesproduct()->where('id_product', $productId)->first()->quantity;
-        
+
                 // Kurangi stok
                 $stockData = Stock::where('id_product', $productId)->first();
                 if ($stockData) {
@@ -298,10 +304,10 @@ class SalesController extends Controller
                     $stockData->save(); // Simpan perubahan
                 }
             }
-        
+
             // Hapus salesproduct yang tidak ada dalam data baru
             $sales->salesproduct()->whereIn('id_product', $productsToRemove)->delete();
-        }        
+        }
 
         // Update data penjualan
         $sales->update([
@@ -322,5 +328,43 @@ class SalesController extends Controller
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
 
+    public function update_payment(Request $request, $id_sales)
+    {
+        $sales = Salesquotation::find($id_sales);
+        // if (!$sales) {
+        //     return redirect()->back()->with('error', 'Sales not found!');
+        // }
 
+        // Validasi input
+        $validated = $request->validate([
+            'resi_number' => 'nullable|string',
+            'payment_receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+
+        // Tangani unggahan gambar untuk bukti pembayaran jika ada
+        if ($request->hasFile('payment_receipt')) {
+            // Hapus gambar lama jika ada
+            if ($sales->payment_receipt) {
+                Storage::disk('public')->delete($sales->payment_receipt);
+            }
+
+            // Simpan gambar baru
+            $receiptImagePath = $request->file('payment_receipt')->store('payment_receipts', 'public');
+
+            // Simpan path gambar baru ke dalam data penjualan
+            $validated['payment_receipt'] = $receiptImagePath;
+        } else {
+            // Jika tidak ada gambar baru diunggah, gunakan gambar yang sudah ada
+            $validated['payment_receipt'] = $request->input('existing_payment_receipt');
+        }
+
+        // Update data penjualan
+        $sales->update([
+            'resi_number' => $validated['resi_number'],
+            'payment_receipt' => $validated['payment_receipt'],
+        ]);
+
+        return redirect()->back()->with('success', 'Payment information updated successfully!');
+    }
 }
