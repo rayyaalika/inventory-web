@@ -235,9 +235,11 @@
                                                                         data-toggle="modal"
                                                                         data-target="#editSalesModal{{ $sales->id_sales }}">Edit
                                                                         Sales</a></li> --}}
+                                                                {{-- Edit Adam --}}
                                                                 <li><a class="dropdown-item"
                                                                         href="{{ url('/sales/' . $sales->id_sales) }}">Edit
                                                                         Sales</a></li>
+                                                                {{-- Edit Adam --}}
                                                                 <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
                                                                         data-target="#paymentSalesModal{{ $sales->id_sales }}">Add

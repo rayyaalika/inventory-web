@@ -188,6 +188,7 @@ class SalesController extends Controller
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 
+    // Edit Adam
     public function getEditProduct($salesId)
     {
         $sales = Salesquotation::with('salesproduct.product')
@@ -327,6 +328,7 @@ class SalesController extends Controller
 
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
+    // Edit Adam
 
     public function update_payment(Request $request, $id_sales)
     {

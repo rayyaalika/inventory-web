@@ -57,10 +57,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales/sales-status-update/{id}', [SalesController::class, 'update_status_sales']);
     Route::get('/sales/get-product-price/{id}', [SalesController::class, 'getProductPrice']);
     Route::delete('/sales/delete/{id}', [SalesController::class,'delete_sales']);
+    // Edit Adam
     Route::get('/sales/{salesId}', [SalesController::class, 'index_edit']);
-    Route::get('/sales/get-product-details/{salesId}', [SalesController::class, 'getProductDetails']);
     Route::get('/sales/get-sales-products/{salesId}', [SalesController::class, 'getEditProduct']);
+    Route::get('/sales/get-product-details/{salesId}', [SalesController::class, 'getProductDetails']);
     Route::put('/sales/edit/{id}', [SalesController::class,'edit_sales']);
+    // Edit Adam
     Route::post('/sales/payment/{id}', [SalesController::class, 'update_payment'])->name('sales.payment.update');
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);
