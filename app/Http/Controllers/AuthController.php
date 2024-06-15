@@ -38,27 +38,8 @@ class AuthController extends Controller
                 return redirect('salesorder');
             }
 
-            
-            // if ($user->role == 'Super Admin' || $user->role == 'Admin' || $user->role == 'Store Admin' || $user->role == 'Supplier' || $user->role == 'Customer Service' || $user->role == 'Sales Order') {
-            //     $request->session()->regenerate();
-                
-            //     // Redirect sesuai dengan role
-            //     if ($user->role == 'Super Admin' || $user->role == 'Admin') {
-            //         return redirect('dashboard');
-            //     } elseif ($user->role == 'Store Admin') {
-            //         return redirect()->route('dashboard');
-            //     } elseif ($user->role == 'Supplier') {
-            //         return redirect()->route('dashboard');
-            //     } elseif ($user->role == 'Customer Service') {
-            //         return redirect()->route('dashboard');
-            //     } elseif ($user->role == 'Sales Order') {
-            //         return redirect()->route('dashboard');
-            //     }
-            // } else {
-            //     return redirect('/')->withErrors('Anda tidak memiliki akses!');
-            // }
         } else {
-            return redirect('/')->withErrors('Email dan Password anda salah!')->withInput();
+            return redirect('/')->withErrors(['login' => 'Invalid email or password.'])->withInput();
         }
     }
 
@@ -76,13 +57,7 @@ class AuthController extends Controller
             'password' => 'required',
             'konfirmasi_password' => 'required|same:password',
         ]);
-        // $admin = new User([
-        //     'nama' => $request->nama,
-        //     'email' => $request->email,
-        //     'role' => $request->role ?? 'Admin',
-        //     'password' => Hash::make($request->password),
-        // ]);
-        // $admin->save();
+      
         return redirect('/')->with('success', 'Akun berhasil didaftarkan, silahkan login!');
     }
 

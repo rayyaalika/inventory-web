@@ -10,12 +10,11 @@ class UserController extends Controller
 {
     public function index()
     {
-        $data['title'] = 'User';
-
         $users = User::all();
+        
         return view('auth.user.user', [
             'users' => $users
-        ], $data);
+        ]);
     }
 
     public function create_user(Request $request)

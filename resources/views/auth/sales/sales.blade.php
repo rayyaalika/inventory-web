@@ -513,10 +513,9 @@
                                                             class="form-control">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="formFile" class="form-label">Upload Address
-                                                            Picture</label>
-                                                        <input name="address_picture" class="form-control"
-                                                            type="file" id="formFile">
+                                                        <label for="formFile" class="form-label">Upload Address Picture</label>
+                                                        <input name="address_picture" class="form-control" type="file" id="formFile" onchange="previewImage(event)">
+                                                        <img id="imagePreview" src="#" alt="Preview" style="max-width: 200px; display: none;">
                                                     </div>
                                                 </div>
                                                 <hr>
@@ -597,19 +596,58 @@
                             </div>
                         </div>
 
+                        <!-- Payment Modal HTML -->
+                        @foreach ($salesData as $sales)
+                            <div id="paymentSalesModal{{ $sales->id_sales }}" class="modal fade">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <form id="salesForm{{ $sales->id_sales }}" class="m-3"
+                                            action="{{ url('sales/payment/' . $sales->id_sales) }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Payment {{ $sales->customer_name }}</h4>
+                                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">	
+                                                <div class="row">			
+                                                  <div class="col mb-3">
+                                                    <label class="form-label">Resi Number</label>
+                                                    <input name="resi_number" type="number" class="form-control" value="{{$sales->resi_number}}" aria-label="name">
+                                                  </div>
+                                                  <div class="col mb-3">
+                                                    <label for="formFile" class="form-label">Payment Receipt</label>
+                                                    <input name="payment_receipt" class="form-control" type="file" id="formFile{{ $sales->id_sales }}" onchange="previewImage(event, {{ $sales->id_sales }})">
+                                                    <input type="hidden" name="existing_payment_receipt" value="{{ $sales->payment_receipt }}">
+                                                    @if($sales->payment_receipt)
+                                                        <img id="imagePreview{{ $sales->id_sales }}" src="{{ asset('storage/' . $sales->payment_receipt) }}" alt="Payment Receipt" style="max-width: 200px;">
+                                                    @else
+                                                        <img id="imagePreview{{ $sales->id_sales }}" src="#" alt="Preview" style="max-width: 200px; display: none;">
+                                                    @endif
+                                                  </div>
+                                                </div>
+                                            </div>
+                                              <div class="modal-footer">
+                                                <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+                                                <button name="submit" id="submitButton{{ $sales->id_sales }}" type="submit" class="btn btn-primary" value="Update">Update</button>
+                                              </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
                         <!-- Edit Modal HTML -->
                         @foreach ($salesData as $sales)
                             <div id="editSalesModal{{ $sales->id_sales }}" class="modal fade">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                     <div class="modal-content">
                                         <form id="salesForm{{ $sales->id_sales }}" class="m-3"
-                                            action="{{ url('sales/edit' . $sales->id_sales) }}" method="POST"
+                                            action="{{ url('sales/edit/' . $sales->id_sales) }}" method="POST"
                                             enctype="multipart/form-data">
                                             @csrf
                                             <div class="modal-header">
-                                                <h4 class="modal-title">Edit Sales Quotation</h4>
-                                                <button type="button" class="btn-close" data-dismiss="modal"
-                                                    aria-label="Close"></button>
+                                                <h4 class="modal-title">Edit Sales {{ $sales->customer_name }}</h4>
+                                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <fieldset disabled>
@@ -749,11 +787,16 @@
                                                             class="form-control">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="formFile" class="form-label">Upload Address
-                                                            Picture</label>
-                                                        <input name="address_picture" class="form-control"
-                                                            value="{{ $sales->address_picture }}" type="file"
-                                                            id="formFile">
+                                                        <label for="formFile" class="form-label">Upload Address Picture</label>
+                                                        <input name="address_picture" class="form-control" type="file" id="formFile" onchange="previewImage(event)">
+                                                        <!-- Tambahkan input hidden untuk menyimpan path gambar alamat yang sudah ada -->
+                                                        <input type="hidden" name="existing_address_picture" value="{{ $sales->address_picture }}">
+                                                        <!-- Tampilkan gambar alamat jika sudah ada -->
+                                                        @if($sales->address_picture)
+                                                            <img src="{{ asset('storage/' . $sales->address_picture) }}" alt="Address Picture" style="max-width: 200px;">
+                                                        @endif
+                                                        <!-- Tampilkan preview gambar yang diunggah -->
+                                                        <img id="imagePreview" src="#" alt="Preview" style="max-width: 200px; display: none;">
                                                     </div>
                                                 </div>
                                                 <hr>
@@ -1146,7 +1189,31 @@
         });
     </script>
 
+    <script>
+        function previewImage(event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function(){
+                var preview = document.getElementById('imagePreview');
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
 
+    <script>
+        function previewImage(event, id) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                var output = document.getElementById('imagePreview' + id);
+                output.src = reader.result;
+                output.style.display = 'block';
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+    
 
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

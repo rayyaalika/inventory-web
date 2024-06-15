@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/sales/delete/{id}', [SalesController::class,'delete_sales']);
     Route::get('/sales/get-sales-products/{salesId}', [SalesController::class, 'getEditProduct']);
     Route::post('/sales/edit/{id}', [SalesController::class,'edit_sales']);
+    Route::post('/sales/payment/{id}', [SalesController::class, 'update_payment'])->name('sales.payment.update');
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);
     Route::post('/remove-product/{id}', [SalesController::class, 'removeProduct']);

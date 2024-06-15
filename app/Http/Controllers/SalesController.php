@@ -9,6 +9,7 @@ use App\Models\Stock;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SalesController extends Controller
 {
@@ -47,14 +48,33 @@ class SalesController extends Controller
             'socmed_username' => 'nullable',
             'customer_phone_number' => 'nullable',
             'customer_address' => 'nullable',
+            'address_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'delivery_company' => 'nullable',
-            'payment_receipt' => 'nullable',
+            'payment_receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'send_date' => 'nullable|date',
             'sales_note' => 'nullable',
             'resi_number' => 'nullable',
         ]);
 
         $user_id = Auth::id();
+
+        // Tangani unggahan gambar jika ada
+        if ($request->hasFile('address_picture')) {
+            // Simpan gambar ke penyimpanan
+            $imagePath = $request->file('address_picture')->store('address_pictures', 'public');
+
+            // Simpan path gambar ke dalam database
+            $validated['address_picture'] = $imagePath;
+        }
+
+        // Tangani unggahan gambar jika ada
+        if ($request->hasFile('payment_receipt')) {
+            // Simpan gambar ke penyimpanan
+            $imagePath = $request->file('payment_receipt')->store('payment_receipt', 'public');
+
+            // Simpan path gambar ke dalam database
+            $validated['payment_receipt'] = $imagePath;
+        }
 
         $sales = Salesquotation::create([
             'id_store' => $validated['id_store'],
@@ -68,6 +88,7 @@ class SalesController extends Controller
             'socmed_username' => $validated['socmed_username'],
             'customer_phone_number' => $validated['customer_phone_number'],
             'customer_address' => $validated['customer_address'],
+            'address_picture' => $validated['address_picture'],
             'delivery_company' => $validated['delivery_company'],
             'payment_receipt' => $validated['payment_receipt'],
             'total_order' => collect($salesproductData)->sum(function ($product) {
@@ -199,12 +220,27 @@ class SalesController extends Controller
             'socmed_username' => 'nullable',
             'customer_phone_number' => 'nullable',
             'customer_address' => 'nullable',
+            'address_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'delivery_company' => 'nullable',
-            'payment_receipt' => 'nullable',
+            'payment_receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'send_date' => 'nullable|date',
             'sales_note' => 'nullable',
             'resi_number' => 'nullable',
         ]);
+
+        // Tangani unggahan gambar alamat jika ada
+        if ($request->hasFile('address_picture')) {
+            // Hapus gambar lama jika ada
+            if ($sales->address_picture) {
+                Storage::disk('public')->delete($sales->address_picture);
+            }
+
+            // Simpan gambar baru
+            $imagePath = $request->file('address_picture')->store('address_pictures', 'public');
+
+            // Simpan path gambar baru ke dalam data penjualan
+            $validated['address_picture'] = $imagePath;
+        }
 
         // Update salesquotation
         $sales->update([
@@ -219,6 +255,7 @@ class SalesController extends Controller
             'socmed_username' => $validated['socmed_username'],
             'customer_phone_number' => $validated['customer_phone_number'],
             'customer_address' => $validated['customer_address'],
+            'address_picture' => $validated['address_picture'],
             'delivery_company' => $validated['delivery_company'],
             'payment_receipt' => $validated['payment_receipt'],
             'total_order' => collect($salesproductData)->sum(function ($product) {
@@ -255,5 +292,45 @@ class SalesController extends Controller
         $products = $sales->salesproduct;
 
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
+    }
+
+    public function update_payment(Request $request, $id_sales)
+    {
+        $sales = Salesquotation::find($id_sales);
+        // if (!$sales) {
+        //     return redirect()->back()->with('error', 'Sales not found!');
+        // }
+    
+        // Validasi input
+        $validated = $request->validate([
+            'resi_number' => 'nullable|string',
+            'payment_receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        
+    
+        // Tangani unggahan gambar untuk bukti pembayaran jika ada
+        if ($request->hasFile('payment_receipt')) {
+            // Hapus gambar lama jika ada
+            if ($sales->payment_receipt) {
+                Storage::disk('public')->delete($sales->payment_receipt);
+            }
+    
+            // Simpan gambar baru
+            $receiptImagePath = $request->file('payment_receipt')->store('payment_receipts', 'public');
+    
+            // Simpan path gambar baru ke dalam data penjualan
+            $validated['payment_receipt'] = $receiptImagePath;
+        } else {
+            // Jika tidak ada gambar baru diunggah, gunakan gambar yang sudah ada
+            $validated['payment_receipt'] = $request->input('existing_payment_receipt');
+        }
+    
+        // Update data penjualan
+        $sales->update([
+            'resi_number' => $validated['resi_number'],
+            'payment_receipt' => $validated['payment_receipt'],
+        ]);
+
+        return redirect()->back()->with('success', 'Payment information updated successfully!');
     }
 }

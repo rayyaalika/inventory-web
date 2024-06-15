@@ -27,7 +27,6 @@ class Salesquotation extends Model
         'delivery_company',
         'payment_receipt',
         'shipment_status',
-        'shipment_resi',
         
         'total_order',
         'send_date',
