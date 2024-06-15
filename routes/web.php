@@ -57,8 +57,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales/sales-status-update/{id}', [SalesController::class, 'update_status_sales']);
     Route::get('/sales/get-product-price/{id}', [SalesController::class, 'getProductPrice']);
     Route::delete('/sales/delete/{id}', [SalesController::class,'delete_sales']);
+    Route::get('/sales/{salesId}', [SalesController::class, 'index_edit']);
+    Route::get('/sales/get-product-details/{salesId}', [SalesController::class, 'getProductDetails']);
     Route::get('/sales/get-sales-products/{salesId}', [SalesController::class, 'getEditProduct']);
-    Route::post('/sales/edit/{id}', [SalesController::class,'edit_sales']);
+    Route::put('/sales/edit/{id}', [SalesController::class,'edit_sales']);
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);
     Route::post('/remove-product/{id}', [SalesController::class, 'removeProduct']);

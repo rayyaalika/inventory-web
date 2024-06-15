@@ -166,7 +166,7 @@ class SalesController extends Controller
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 
-    public function getProductEdit($salesId)
+    public function getEditProduct($salesId)
     {
         $sales = Salesquotation::with('salesproduct.product')
             ->where('id_sales', $salesId)
@@ -174,86 +174,153 @@ class SalesController extends Controller
         return response()->json($sales);
     }
 
+    public function index_edit($salesId)
+    {
+        $sales = Salesquotation::with('salesproduct.product')
+            ->where('id_sales', $salesId)
+            ->first();
+        $store = Store::all();
+        $product = Product::all();
+        $salesproduct = salesproduct::all();
+        $stock = Stock::with('product')->get();
+
+        return view('auth.sales.edit.edit', [
+            'sales' => $sales,
+            'store' => $store,
+            'product' => $product,
+            'stock' => $stock,
+            'salesproduct' => $salesproduct
+        ]);
+    }
+
+    public function getProductDetails($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'product' => [
+                'product_barcode' => $product->product_barcode,
+                'product_name' => $product->product_name,
+                'product_price' => $product->product_price
+            ]
+        ]);
+    }
+
     public function edit_sales(Request $request, $id_sales)
     {
-        $sales = Salesquotation::find($id_sales);
+        $sales = Salesquotation::where('id_sales', $id_sales)
+            ->with('salesproduct')
+            ->first();
+
         if (!$sales) {
             return redirect()->back()->with('error', 'Sales not found!');
         }
 
-        // Ambil data produk terkait dengan penjualan
-        $products = $sales->salesproduct;
-
+        // Ambil data produk penjualan dari input JSON
         $salesproductData = json_decode($request->input('salesproduct_data'), true);
+        // Update atau tambahkan data produk penjualan
+        $total_order = 0; // Total order sementara
 
-        $validated = $request->validate([
-            'id_store' => 'required',
-            'transaction_date' => 'required',
-            'sq_numbering' => 'required',
-            'warehouse' => 'required',
-            'staff_name' => 'required',
-            'customer_name' => 'required',
-            'qty_sales' => 'required|integer',
-            'salesproduct_data' => 'required|json',
-            'socmed_type' => 'nullable',
-            'socmed_username' => 'nullable',
-            'customer_phone_number' => 'nullable',
-            'customer_address' => 'nullable',
-            'delivery_company' => 'nullable',
-            'payment_receipt' => 'nullable',
-            'send_date' => 'nullable|date',
-            'sales_note' => 'nullable',
-            'resi_number' => 'nullable',
-        ]);
+        // Array untuk menyimpan ID produk yang akan dihapus
+        $productsToRemove = $sales->salesproduct->pluck('id_product')->toArray();
 
-        // Update salesquotation
-        $sales->update([
-            'id_store' => $validated['id_store'],
-            'transaction_date' => $validated['transaction_date'],
-            'sq_numbering' => $validated['sq_numbering'],
-            'warehouse' => $validated['warehouse'],
-            'staff_name' => $validated['staff_name'],
-            'customer_name' => $validated['customer_name'],
-            'qty_sales' => $validated['qty_sales'],
-            'socmed_type' => $validated['socmed_type'],
-            'socmed_username' => $validated['socmed_username'],
-            'customer_phone_number' => $validated['customer_phone_number'],
-            'customer_address' => $validated['customer_address'],
-            'delivery_company' => $validated['delivery_company'],
-            'payment_receipt' => $validated['payment_receipt'],
-            'total_order' => collect($salesproductData)->sum(function ($product) {
-                return $product['quantity'] * $product['salesproduct_price'];
-            }),
-            'send_date' => $validated['send_date'],
-            'sales_note' => $validated['sales_note'],
-            'resi_number' => $validated['resi_number'],
-        ]);
-
-        // Update salesproducts
-        Salesproduct::where('id_sales', $id_sales)->delete();
+        // Update atau tambahkan data salesproduct
         foreach ($salesproductData as $product) {
-            $id_product = $product['salesproduct_id'];
+            $existingProduct = $sales->salesproduct->where('id_product', $product['id_product'])->first();
 
-            Salesproduct::create([
-                'salesproduct_name' => $product['salesproduct_name'],
-                'salesproduct_price' => $product['salesproduct_price'],
-                'id_sales' => $id_sales,
-                'quantity' => $product['quantity'],
-                'id_product' => $id_product,
-            ]);
+            if ($existingProduct) {
+                // Jika produk sudah ada dalam penjualan, update kuantitasnya
+                $existingQuantity = $existingProduct->quantity;
+                $newQuantity = $product['quantity'];
+                $quantityDifference = $newQuantity - $existingQuantity;
 
-            if ($id_product) {
-                $stockData = Stock::where('id_product', $id_product)->first();
+                $existingProduct->update([
+                    'quantity' => $newQuantity,
+                ]);
+
+                // Kurangi atau tambahkan stok berdasarkan perubahan kuantitas
+                $stockData = Stock::where('id_product', $product['id_product'])->first();
                 if ($stockData) {
-                    $stockData->wh_stock -= $product['quantity'];
-                    $stockData->out_stock += $product['quantity'];
-                    $stockData->save();
+                    if ($quantityDifference > 0) {
+                        // Jika kuantitas produk bertambah, kurangi stok dari gudang
+                        $stockData->wh_stock -= $quantityDifference;
+                        $stockData->out_stock += $quantityDifference;
+                    } else if ($quantityDifference < 0) {
+                        // Jika kuantitas produk berkurang, tambahkan stok kembali ke gudang
+                        $stockData->wh_stock -= $quantityDifference;
+                        $stockData->out_stock += $quantityDifference;
+                    }
+                    $stockData->save(); // Simpan perubahan stok
+                }
+
+                // Hapus ID produk dari array jika produk masih ada
+                $index = array_search($product['id_product'], $productsToRemove);
+                if ($index !== false) {
+                    unset($productsToRemove[$index]);
+                }
+            } else {
+                // Jika produk belum ada dalam penjualan, tambahkan produk baru
+                $sales->salesproduct()->create([
+                    'salesproduct_name' => $product['product_name'],
+                    'salesproduct_price' => $product['salesproduct_price'],
+                    'quantity' => $product['quantity'],
+                    'id_product' => $product['id_product'],
+                ]);
+
+                // Kurangi stok saat produk baru ditambahkan
+                $stockData = Stock::where('id_product', $product['id_product'])->first();
+                if ($stockData) {
+                    $stockData->wh_stock -= $product['quantity']; // Kurangi stok gudang
+                    $stockData->out_stock += $product['quantity']; // Tambah stok keluar
+                    $stockData->save(); // Simpan perubahan
                 }
             }
+
+            // Hitung total_order
+            $total_order += $product['quantity'] * $product['salesproduct_price'];
         }
 
-        $products = $sales->salesproduct;
+        // Hapus salesproduct yang tidak ada dalam data baru
+        if (!empty($productsToRemove)) {
+            foreach ($productsToRemove as $productId) {
+                // Ambil kuantitas produk yang dihapus
+                $quantityToRemove = $sales->salesproduct()->where('id_product', $productId)->first()->quantity;
+        
+                // Kurangi stok
+                $stockData = Stock::where('id_product', $productId)->first();
+                if ($stockData) {
+                    $stockData->wh_stock += $quantityToRemove; // Tambah stok gudang
+                    $stockData->out_stock -= $quantityToRemove; // Kurangi stok keluar
+                    $stockData->save(); // Simpan perubahan
+                }
+            }
+        
+            // Hapus salesproduct yang tidak ada dalam data baru
+            $sales->salesproduct()->whereIn('id_product', $productsToRemove)->delete();
+        }        
+
+        // Update data penjualan
+        $sales->update([
+            'customer_name' => $request->input('customer_name'),
+            'socmed_type' => $request->input('socmed_type'),
+            'socmed_username' => $request->input('socmed_username'),
+            'delivery_company' => $request->input('delivery_company'),
+            'customer_phone_number' => $request->input('customer_phone_number'),
+            'customer_address' => $request->input('customer_address'),
+            'send_date' => $request->input('send_date'),
+            'sales_note' => $request->input('sales_note'),
+            'qty_sales' => $request->input('qty_sales'),
+            'payment_receipt' => $request->input('payment_receipt'),
+            'resi_number' => $request->input('resi_number'),
+            'total_order' => $total_order,
+        ]);
 
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
+
+
 }

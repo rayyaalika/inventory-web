@@ -231,9 +231,11 @@
                                                                     data-toggle="tooltip" title="Actions"></i>
                                                             </button>
                                                             <ul class="dropdown-menu">
-                                                                <li><a class="dropdown-item" href=""
+                                                                {{-- <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
                                                                         data-target="#editSalesModal{{ $sales->id_sales }}">Edit
+                                                                        Sales</a></li> --}}
+                                                                <li><a class="dropdown-item" href="{{ url('/sales/'. $sales->id_sales) }}">Edit
                                                                         Sales</a></li>
                                                                 <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
@@ -598,12 +600,12 @@
                         </div>
 
                         <!-- Edit Modal HTML -->
-                        @foreach ($salesData as $sales)
+                        {{-- @foreach ($salesData as $sales)
                             <div id="editSalesModal{{ $sales->id_sales }}" class="modal fade">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                     <div class="modal-content">
                                         <form id="salesForm{{ $sales->id_sales }}" class="m-3"
-                                            action="{{ url('sales/edit' . $sales->id_sales) }}" method="POST"
+                                            action="{{ url('sales/edit/' . $sales->id_sales) }}" method="POST"
                                             enctype="multipart/form-data">
                                             @csrf
                                             <div class="modal-header">
@@ -839,7 +841,7 @@
                                                     <input type="hidden" name="qty_sales" value="0">
                                                     <input type="hidden" name="payment_receipt" value="">
                                                     <input type="hidden" name="resi_number" value="">
-                                                    <input id="submitButton{{ $sales->id_sales }}" type="button"
+                                                    <input id="submitButton{{ $sales->id_sales }}" type="submit"
                                                         class="btn btn-primary m-1" value="Update Sales">
                                                 </div>
                                             </div>
@@ -847,7 +849,7 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        @endforeach --}}
 
                         <!-- Delete Modal HTML -->
                         @foreach ($salesData as $sales)
@@ -908,7 +910,7 @@
         });
     </script>
 
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             var products =
             @json($sales->salesproducts); // Assuming $sales->salesProducts contains the existing products for this sale
@@ -936,6 +938,7 @@
                                 product_barcode: productBarcode,
                                 quantity: parseInt(quantity)
                             };
+                            console.log(response);
                             products.push(product);
                             updateProductTable({{ $sales->id_sales }});
                             updateProductsInput({{ $sales->id_sales }});
@@ -1028,7 +1031,7 @@
                 }
             });
         });
-    </script>
+    </script> --}}
 
     <script>
         $(document).ready(function() {
