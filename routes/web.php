@@ -35,6 +35,7 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('logout', [AuthController::class, 'logout']);
+    Route::get('/home', [AdminController::class,'index']);
     Route::get('/superadmin', [AdminController::class,'index'])->name('superadmin'); //name buat manggil di controller
     Route::get('/storeadmin', [AdminController::class,'storeadmin'])->name('storeadmin');
     Route::get('/supplier', [AdminController::class,'supplier'])->name('supplier');

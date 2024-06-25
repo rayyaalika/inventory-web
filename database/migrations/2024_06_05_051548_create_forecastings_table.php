@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id('id_forecasting');
             $table->dateTime('date');
             $table->string('parameter');
-            $table->integer('value')->default('0');
-            $table->unsignedBigInteger('id_product')->nullable();
+            $table->float('value')->default('0');
+            // $table->unsignedBigInteger('id_product')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_product')->references('id_product')->on('products');
+            // $table->foreign('id_product')->references('id_product')->on('products');
         });
     }
 

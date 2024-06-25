@@ -165,7 +165,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Sales</h5>
-                          <p class="mb-2">Per Month</p>
+                          {{-- <p class="mb-2">Per Month</p> --}}
                           <h4 class="fw-semibold mb-1">${{ $totalSalesAmount }}</h4>
                         </div>
                       </div>
@@ -186,7 +186,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title fw-semibold">Total Order</h5>
-                          <p class="mb-2">Per Month</p>
+                          {{-- <p class="mb-2">Per Month</p> --}}
                           <h4 class="fw-semibold mb-1">{{ $totalSales }}</h4>
                         </div>
                       </div>
@@ -207,7 +207,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Shipping</h5>
-                          <p class="mb-2">Per Month</p>
+                          {{-- <p class="mb-2">Per Month</p> --}}
                           <h4 class="fw-semibold mb-1">{{ $totalCollectedDeliveries }}</h4>
                         </div>
                       </div>
@@ -226,7 +226,7 @@
                 <div class="card-body">
                   <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                     <div class="mb-3 mb-sm-0">
-                      <h5 class="card-title fw-semibold">Sales Amount Per Month</h5>
+                      <h5 class="card-title fw-semibold">Sales Amount</h5>
                     </div>
                   </div>
                   <div id="chartamount"></div>

@@ -146,27 +146,81 @@
       </header>
       <!--  Header End -->
 
-    <div class="container-fluid">
-     <div class="comtainer-fluid">
-        <div class="col-lg-12 d-flex align-items-strech">
-          <div class="card w-100">
-            <div class="card-body">
-                <div class="mb-3 mb-sm-0">
-                  <h5 class="card-title fw-semibold">Product Prediction</h5>
-                </div>
-                <form action="{{ route('prediction.predict') }}" method="post">
-                  @csrf
-                  <label for="item_name">Masukkan item yang akan di prediksi: </label>
-                  <input class="form-control mb-3 mt-1" type="text" id="item_name" name="item_name" required>
-                  <input class="btn btn-primary" type="submit" value="Prediksi">
-                </form>
-            </div>
-          </div>
+      @if(session('alert'))
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ session('alert') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-     </div>
+      @endif
+
+    <div class="container-fluid">
+      <div class="container-fluid">
+        <div class="col-lg-12 d-flex align-items-stretch">
+            <div class="card w-100">
+                <div class="card-body">
+                    <div class="mb-3 mb-sm-0">
+                        <h5 class="card-title fw-semibold">Product Prediction</h5>
+                    </div>
+                    <form action="{{ route('prediction.predict') }}" method="post">
+                        @csrf
+                        <label for="item_name">Select item to be predicted: </label>
+                        <select class="form-select mb-3 mt-1" id="item_name" name="item_name" required>
+                            <option value="" selected>--select item--</option>
+                            @foreach($items as $item)
+                                <option value="{{ $item }}">{{ $item }}</option>
+                            @endforeach
+                        </select>
+                        <input class="btn btn-primary" type="submit" value="Predict">
+                    </form>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="container-fluid">
+        <div class="col-lg-12 d-flex align-items-stretch">
+            <div class="card w-100">
+                <div class="card-body">
+                    <div class="mb-3 mb-sm-0">
+                        <h5 class="card-title fw-semibold">Prediction Result</h5>
+                    </div>
+    
+                    @if(isset($predictionsData) && count($predictionsData) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        @for($i = 0; $i < 12; $i++)
+                                            <th>{{ date('F', mktime(0, 0, 0, $i + 1, 1)) }}</th>
+                                        @endfor
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($predictionsData as $data)
+                                        <tr>
+                                            <td>{{ $data['item_name'] }}</td>
+                                            @foreach($data['predictions'] as $prediction)
+                                                <td>{{ $prediction }}</td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p>No prediction data available.</p>
+                    @endif
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
-      @if(isset($predictions) && isset($dates))
-      <div class="container-fluid mt-4">
+      {{-- @if(isset($predictions) && isset($dates))
+        <div class="container-fluid mt-4">
           <div class="col-lg-12">
               <div class="card w-100">
                   <h2>Hasil Prediksi untuk {{ $item_name }}</h2>
@@ -188,8 +242,8 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            @endif
+        </div>
+      @endif --}}
    
     
       
@@ -203,6 +257,12 @@
   <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="../assets/js/dashboard.js"></script>
+
+  <!-- In your main layout blade file or head section -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>
