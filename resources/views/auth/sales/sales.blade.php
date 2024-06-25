@@ -49,80 +49,86 @@
                 <!-- Sidebar navigation-->
                 <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
                     <ul id="sidebarnav">
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Home</span>
-                        </li>
-                        @php
-                            $role = Auth::user()->role;
-                        @endphp
-
-                        <li class="sidebar-item">
-                            @if ($role == 'Super Admin')
-                                <a class="sidebar-link" href="{{ route('superadmin') }}" aria-expanded="false">
-                                @elseif($role == 'Store Admin')
-                                    <a class="sidebar-link" href="{{ route('storeadmin') }}" aria-expanded="false">
-                                    @elseif($role == 'Supplier')
-                                        <a class="sidebar-link" href="{{ route('supplier') }}" aria-expanded="false">
-                                        @elseif($role == 'Cutomer Service')
-                                            <a class="sidebar-link" href="{{ route('customerservice') }}"
-                                                aria-expanded="false">
-                                            @elseif($role == 'Sales Order')
-                                                <a class="sidebar-link" href="{{ route('salesorder') }}"
-                                                    aria-expanded="false">
-                            @endif
+                      <li class="nav-small-cap">
+                        <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                        <span class="hide-menu">Home</span>
+                      </li>
+                      @php
+                          $role = Auth::user()->role;
+                      @endphp
+          
+                      <li class="sidebar-item">
+                          @if($role == 'Super Admin')
+                              <a class="sidebar-link" href="{{ route('superadmin') }}" aria-expanded="false">
+                          @elseif($role == 'Store Admin')
+                              <a class="sidebar-link" href="{{ route('storeadmin') }}" aria-expanded="false">
+                          @elseif($role == 'Supplier')
+                              <a class="sidebar-link" href="{{ route('supplier') }}" aria-expanded="false">
+                          @elseif($role == 'Cutomer Service')
+                              <a class="sidebar-link" href="{{ route('customerservice') }}" aria-expanded="false">
+                          @elseif($role == 'Sales Order')
+                              <a class="sidebar-link" href="{{ route('salesorder') }}" aria-expanded="false">
+                          @endif
+                              <span>
+                                  <i class="ti ti-layout-dashboard"></i>
+                              </span>
+                              <span class="hide-menu">Dashboard</span>
+                          </a>
+                      </li>
+                      <li class="nav-small-cap">
+                        <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                        <span class="hide-menu">Menu</span>
+                      </li>
+                      @php
+                      $allowedRoles = ['Super Admin'];
+                      $userRole = Auth::check() ? Auth::user()->role : null;
+                      @endphp
+                      @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                          @if(in_array($userRole, $allowedRoles))
+                              <li class="sidebar-item">
+                                  <a class="sidebar-link" href="{{ url('/user') }}" aria-expanded="false">
+                                      <span>
+                                          <i class="ti ti-user"></i>
+                                      </span>
+                                      <span class="hide-menu">User</span>
+                                  </a>
+                              </li>
+                          @endif
+                      @endif
+                      <li class="sidebar-item">
+                          <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
                             <span>
-                                <i class="ti ti-layout-dashboard"></i>
+                              <i class="ti ti-graph"></i>
                             </span>
-                            <span class="hide-menu">Dashboard</span>
-                            </a>
+                            <span class="hide-menu">Prediction</span>
+                          </a>
                         </li>
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Menu</span>
-                        </li>
-                        @php
-                            $allowedRoles = ['Super Admin'];
-                            $userRole = Auth::check() ? Auth::user()->role : null;
-                        @endphp
-                        @if (Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
-                            @if (in_array($userRole, $allowedRoles))
-                                <li class="sidebar-item">
-                                    <a class="sidebar-link" href="{{ url('/user') }}" aria-expanded="false">
-                                        <span>
-                                            <i class="ti ti-user"></i>
-                                        </span>
-                                        <span class="hide-menu">User</span>
-                                    </a>
-                                </li>
-                            @endif
-                        @endif
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-package"></i>
-                                </span>
-                                <span class="hide-menu">Product</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ url('/sales') }}" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-shopping-cart"></i>
-                                </span>
-                                <span class="hide-menu">Sales</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ url('/shipping') }}" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-truck"></i>
-                                </span>
-                                <span class="hide-menu">Shipping</span>
-                            </a>
-                        </li>
+                      <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
+                          <span>
+                            <i class="ti ti-package"></i>
+                          </span>
+                          <span class="hide-menu">Product</span>
+                        </a>
+                      </li>
+                      <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ url('/sales') }}" aria-expanded="false">
+                          <span>
+                            <i class="ti ti-shopping-cart"></i>
+                          </span>
+                          <span class="hide-menu">Sales</span>
+                        </a>
+                      </li>
+                      <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ url('/shipping') }}" aria-expanded="false">
+                          <span>
+                            <i class="ti ti-truck"></i>
+                          </span>
+                          <span class="hide-menu">Shipping</span>
+                        </a>
+                      </li>
                     </ul>
-                </nav>
+                  </nav>
                 <!-- End Sidebar navigation -->
             </div>
             <!-- End Sidebar scroll-->
@@ -231,14 +237,13 @@
                                                                     data-toggle="tooltip" title="Actions"></i>
                                                             </button>
                                                             <ul class="dropdown-menu">
-                                                                <li><a class="dropdown-item" href=""
-                                                                        data-toggle="modal"
-                                                                        data-target="#editSalesModal{{ $sales->id_sales }}">Edit
+                                                                <li><a class="dropdown-item"
+                                                                        href="{{ url('/sales/' . $sales->id_sales) }}">Edit
                                                                         Sales</a></li>
                                                                 <li><a class="dropdown-item" href=""
                                                                         data-toggle="modal"
-                                                                        data-target="#paymentSalesModal{{ $sales->id_sales }}">Add
-                                                                        Payment</a></li>
+                                                                        data-target="#paymentSalesModal{{ $sales->id_sales }}">
+                                                                        Resi & Payment</a></li>
                                                                 <li><a class="dropdown-item text-danger"
                                                                         href="" data-toggle="modal"
                                                                         data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
@@ -514,7 +519,7 @@
                                                     </div>
                                                     <div class="col">
                                                         <label for="formFile" class="form-label">Upload Address Picture</label>
-                                                        <input name="address_picture" class="form-control" type="file" id="formFile" onchange="previewImage(event)">
+                                                        <input name="address_picture" class="form-control mb-3" type="file" id="formFile" onchange="previewImage(event)">
                                                         <img id="imagePreview" src="#" alt="Preview" style="max-width: 200px; display: none;">
                                                     </div>
                                                 </div>
@@ -637,7 +642,7 @@
                         @endforeach
 
                         <!-- Edit Modal HTML -->
-                        @foreach ($salesData as $sales)
+                        {{-- @foreach ($salesData as $sales)
                             <div id="editSalesModal{{ $sales->id_sales }}" class="modal fade">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                     <div class="modal-content">
@@ -890,7 +895,7 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        @endforeach --}}
 
                         <!-- Delete Modal HTML -->
                         @foreach ($salesData as $sales)
@@ -935,6 +940,29 @@
     <script src="../assets/js/app.min.js"></script>
     <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
 
+
+    <!-- Tambahkan JavaScript Bootstrap dan jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function previewImage(event) {
+            var input = event.target;
+            var reader = new FileReader();
+
+            reader.onload = function() {
+                var dataURL = reader.result;
+                var imagePreview = document.getElementById('imagePreview');
+                imagePreview.src = dataURL;
+                imagePreview.style.display = 'block';
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
     <script>
         document.getElementById('applyButton').addEventListener('click', function() {
             var storeSelect = document.getElementById('storeSelect').value;
@@ -951,7 +979,7 @@
         });
     </script>
 
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             var products =
             @json($sales->salesproducts); // Assuming $sales->salesProducts contains the existing products for this sale
@@ -1071,7 +1099,7 @@
                 }
             });
         });
-    </script>
+    </script> --}}
 
     <script>
         $(document).ready(function() {
@@ -1187,31 +1215,6 @@
                 $('#salesForm').submit();
             });
         });
-    </script>
-
-    <script>
-        function previewImage(event) {
-            var input = event.target;
-            var reader = new FileReader();
-            reader.onload = function(){
-                var preview = document.getElementById('imagePreview');
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    </script>
-
-    <script>
-        function previewImage(event, id) {
-            var reader = new FileReader();
-            reader.onload = function(){
-                var output = document.getElementById('imagePreview' + id);
-                output.src = reader.result;
-                output.style.display = 'block';
-            }
-            reader.readAsDataURL(event.target.files[0]);
-        }
     </script>
     
 

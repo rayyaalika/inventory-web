@@ -81,6 +81,14 @@
                 @endif
             @endif
             <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                  <span>
+                    <i class="ti ti-graph"></i>
+                  </span>
+                  <span class="hide-menu">Prediction</span>
+                </a>
+              </li>
+            <li class="sidebar-item">
               <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                 <span>
                   <i class="ti ti-package"></i>

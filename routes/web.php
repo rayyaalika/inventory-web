@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesController;
@@ -57,19 +58,27 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales/sales-status-update/{id}', [SalesController::class, 'update_status_sales']);
     Route::get('/sales/get-product-price/{id}', [SalesController::class, 'getProductPrice']);
     Route::delete('/sales/delete/{id}', [SalesController::class,'delete_sales']);
+
+    Route::get('/sales/{salesId}', [SalesController::class, 'index_edit']);
     Route::get('/sales/get-sales-products/{salesId}', [SalesController::class, 'getEditProduct']);
-    Route::post('/sales/edit/{id}', [SalesController::class,'edit_sales']);
+    Route::get('/sales/get-product-details/{salesId}', [SalesController::class, 'getProductDetails']);
+    Route::put('/sales/edit/{id}', [SalesController::class,'edit_sales']);
+    Route::post('/sales/edit_sales/{id_sales}/upload-address-picture', [SalesController::class,'uploadAddressPicture']);
+
+
     Route::post('/sales/payment/{id}', [SalesController::class, 'update_payment'])->name('sales.payment.update');
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);
     Route::post('/remove-product/{id}', [SalesController::class, 'removeProduct']);
-
-
 
     Route::get('/shipping', [ShippingController::class,'index']);
     Route::post('/shipping/sales-status-update/{id}', [ShippingController::class, 'update_status_sales']);
 
     Route::get('/profile/{id}', [ProfileController::class,'index']);
     Route::post('/profile/edit/{id}', [ProfileController::class,'edit_profile']); 
+
+    Route::get('/prediction', [PredictionController::class,'index']);
+    Route::post('/prediction/predict', [PredictionController::class,'predict'])->name('prediction.predict');
+
 });
 

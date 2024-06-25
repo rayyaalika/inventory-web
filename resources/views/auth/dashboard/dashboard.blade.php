@@ -77,6 +77,14 @@
                 @endif
             @endif
             <li class="sidebar-item">
+              <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-graph"></i>
+                </span>
+                <span class="hide-menu">Prediction</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
               <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                 <span>
                   <i class="ti ti-package"></i>
@@ -157,6 +165,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Sales</h5>
+                          <p class="mb-2">Per Month</p>
                           <h4 class="fw-semibold mb-1">${{ $totalSalesAmount }}</h4>
                         </div>
                       </div>
@@ -176,7 +185,8 @@
                           </div>
                         </div>
                         <div class="col-8">
-                          <h5 class="card-title mb-2 fw-semibold">Total Order</h5>
+                          <h5 class="card-title fw-semibold">Total Order</h5>
+                          <p class="mb-2">Per Month</p>
                           <h4 class="fw-semibold mb-1">{{ $totalSales }}</h4>
                         </div>
                       </div>
@@ -197,6 +207,7 @@
                         </div>
                         <div class="col-8">
                           <h5 class="card-title mb-2 fw-semibold">Total Shipping</h5>
+                          <p class="mb-2">Per Month</p>
                           <h4 class="fw-semibold mb-1">{{ $totalCollectedDeliveries }}</h4>
                         </div>
                       </div>
@@ -215,18 +226,10 @@
                 <div class="card-body">
                   <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                     <div class="mb-3 mb-sm-0">
-                      <h5 class="card-title fw-semibold">Sales Overview</h5>
-                    </div>
-                    <div>
-                      <select class="form-select">
-                        <option value="1">March 2023</option>
-                        <option value="2">April 2023</option>
-                        <option value="3">May 2023</option>
-                        <option value="4">June 2023</option>
-                      </select>
+                      <h5 class="card-title fw-semibold">Sales Amount Per Month</h5>
                     </div>
                   </div>
-                  <div id="chart"></div>
+                  <div id="chartamount"></div>
                 </div>
               </div>
             </div>
@@ -237,16 +240,8 @@
                     <div class="mb-3 mb-sm-0">
                       <h5 class="card-title fw-semibold">Sales Overview</h5>
                     </div>
-                    <div>
-                      <select class="form-select">
-                        <option value="1">March 2023</option>
-                        <option value="2">April 2023</option>
-                        <option value="3">May 2023</option>
-                        <option value="4">June 2023</option>
-                      </select>
-                    </div>
                   </div>
-                  <div id="options"></div>
+                  <div id="chartsales"></div>
                 </div>
               </div>
             </div>
@@ -309,7 +304,50 @@
         </div>
       </div>
 
-
+      <div class="comtainer-fluid">
+        <div class="col-lg-12 d-flex align-items-strech">
+          <div class="card w-100">
+            <div class="card-body">
+                <div class="mb-3 mb-sm-0">
+                  <h5 class="card-title fw-semibold">Product Prediction</h5>
+                </div>
+                <form action="{{ route('prediction.predict') }}" method="post">
+                  @csrf
+                  <label for="item_name">Masukkan item yang akan di prediksi: </label>
+                  <input class="form-control mb-3 mt-1" type="text" id="item_name" name="item_name" required>
+                  <input class="btn btn-primary" type="submit" value="Prediksi">
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      @if(isset($predictions) && isset($dates))
+      <div class="container-fluid mt-4">
+          <div class="col-lg-12">
+              <div class="card w-100">
+                  <h2>Hasil Prediksi untuk {{ $item_name }}</h2>
+                  <table class="table">
+                      <thead>
+                          <tr>
+                              <th>Tanggal</th>
+                              <th>Prediksi Jumlah</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          @foreach($dates as $index => $date)
+                              <tr>
+                                  <td>{{ $date->format('Y-m') }}</td>
+                                  <td>{{ $predictions[$index][0] }}</td>
+                              </tr>
+                          @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endif
+   
+    
       
       </div>      
     </div>
@@ -321,6 +359,102 @@
   <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="../assets/js/dashboard.js"></script>
+  
+  <script>
+    // Data totalSalesAmount per bulan
+    const salesData = @json($totalSalesAmountPerMonth);
+
+    var options = {
+        series: [{
+            name: 'Total Sales Amount',
+            data: salesData
+        }],
+        chart: {
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        // title: {
+        //     text: 'Sales Overview per Month',
+        //     align: 'left'
+        // },
+        grid: {
+            row: {
+                colors: ['#f3f3f3', 'transparent'], // an alternation
+                opacity: 0.5
+            },
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chartamount"), options);
+    chart.render();
+  </script>
+  <script>
+    // Data totalSalesAmount dan totalCollectedDeliveries per bulan
+    const totalSalesPerMonth = @json($totalSalesPerMonth);
+    const totalCollectedDeliveriesPerMonth = @json($totalCollectedDeliveriesPerMonth);
+
+    var options = {
+        series: [{
+            name: 'Total Sales',
+            data: totalSalesPerMonth
+        }, {
+            name: 'Total Collected Deliveries',
+            data: totalCollectedDeliveriesPerMonth
+        }],
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        },
+        // yaxis: {
+        //     title: {
+        //         text: 'Amount'
+        //     }
+        // },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                   return val + " Sales";
+                }
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chartsales"), options);
+    chart.render();
+  </script>
 </body>
 
 </html>

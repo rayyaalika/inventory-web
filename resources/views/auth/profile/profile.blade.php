@@ -30,77 +30,85 @@
           <!-- Sidebar navigation-->
           <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
             <ul id="sidebarnav">
-                <li class="nav-small-cap">
-                  <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                  <span class="hide-menu">Home</span>
-                </li>
-                @php
-                    $role = Auth::user()->role;
-                @endphp
-    
-                <li class="sidebar-item">
-                    @if($role == 'Super Admin')
-                        <a class="sidebar-link" href="{{ route('superadmin') }}" aria-expanded="false">
-                    @elseif($role == 'Store Admin')
-                        <a class="sidebar-link" href="{{ route('storeadmin') }}" aria-expanded="false">
-                    @elseif($role == 'Supplier')
-                        <a class="sidebar-link" href="{{ route('supplier') }}" aria-expanded="false">
-                    @elseif($role == 'Cutomer Service')
-                        <a class="sidebar-link" href="{{ route('customerservice') }}" aria-expanded="false">
-                    @elseif($role == 'Sales Order')
-                        <a class="sidebar-link" href="{{ route('salesorder') }}" aria-expanded="false">
-                    @endif
-                        <span>
-                            <i class="ti ti-layout-dashboard"></i>
-                        </span>
-                        <span class="hide-menu">Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-small-cap">
-                  <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                  <span class="hide-menu">Menu</span>
-                </li>
-                @php
-                $allowedRoles = ['Super Admin'];
-                $userRole = Auth::check() ? Auth::user()->role : null;
-                @endphp
-                @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
-                    @if(in_array($userRole, $allowedRoles))
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ url('/user') }}" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-user"></i>
-                                </span>
-                                <span class="hide-menu">User</span>
-                            </a>
-                        </li>
-                    @endif
-                @endif
-                <li class="sidebar-item">
-                  <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
+              <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">Home</span>
+              </li>
+              @php
+                  $role = Auth::user()->role;
+              @endphp
+  
+              <li class="sidebar-item">
+                  @if($role == 'Super Admin')
+                      <a class="sidebar-link" href="{{ route('superadmin') }}" aria-expanded="false">
+                  @elseif($role == 'Store Admin')
+                      <a class="sidebar-link" href="{{ route('storeadmin') }}" aria-expanded="false">
+                  @elseif($role == 'Supplier')
+                      <a class="sidebar-link" href="{{ route('supplier') }}" aria-expanded="false">
+                  @elseif($role == 'Cutomer Service')
+                      <a class="sidebar-link" href="{{ route('customerservice') }}" aria-expanded="false">
+                  @elseif($role == 'Sales Order')
+                      <a class="sidebar-link" href="{{ route('salesorder') }}" aria-expanded="false">
+                  @endif
+                      <span>
+                          <i class="ti ti-layout-dashboard"></i>
+                      </span>
+                      <span class="hide-menu">Dashboard</span>
+                  </a>
+              </li>
+              <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">Menu</span>
+              </li>
+              @php
+              $allowedRoles = ['Super Admin'];
+              $userRole = Auth::check() ? Auth::user()->role : null;
+              @endphp
+              @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                  @if(in_array($userRole, $allowedRoles))
+                      <li class="sidebar-item">
+                          <a class="sidebar-link" href="{{ url('/user') }}" aria-expanded="false">
+                              <span>
+                                  <i class="ti ti-user"></i>
+                              </span>
+                              <span class="hide-menu">User</span>
+                          </a>
+                      </li>
+                  @endif
+              @endif
+              <li class="sidebar-item">
+                  <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
                     <span>
-                      <i class="ti ti-package"></i>
+                      <i class="ti ti-graph"></i>
                     </span>
-                    <span class="hide-menu">Product</span>
+                    <span class="hide-menu">Prediction</span>
                   </a>
                 </li>
-                <li class="sidebar-item">
-                  <a class="sidebar-link" href="{{ url('/sales') }}" aria-expanded="false">
-                    <span>
-                      <i class="ti ti-shopping-cart"></i>
-                    </span>
-                    <span class="hide-menu">Sales</span>
-                  </a>
-                </li>
-                <li class="sidebar-item">
-                  <a class="sidebar-link" href="{{ url('/shipping') }}" aria-expanded="false">
-                    <span>
-                      <i class="ti ti-truck"></i>
-                    </span>
-                    <span class="hide-menu">Shipping</span>
-                  </a>
-                </li>
-              </ul>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
+                  <span>
+                    <i class="ti ti-package"></i>
+                  </span>
+                  <span class="hide-menu">Product</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ url('/sales') }}" aria-expanded="false">
+                  <span>
+                    <i class="ti ti-shopping-cart"></i>
+                  </span>
+                  <span class="hide-menu">Sales</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ url('/shipping') }}" aria-expanded="false">
+                  <span>
+                    <i class="ti ti-truck"></i>
+                  </span>
+                  <span class="hide-menu">Shipping</span>
+                </a>
+              </li>
+            </ul>
           </nav>
           <!-- End Sidebar navigation -->
         </div>

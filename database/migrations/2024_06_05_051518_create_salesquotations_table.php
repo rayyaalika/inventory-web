@@ -30,7 +30,6 @@ return new class extends Migration
 
             $table->enum('delivery_company', ['HILIFE','FAMILY MART','HCT','7-11','POST', 'SHOPEE SHOP','OFFLINE'])->default('POST')->nullable();
             $table->string('payment_receipt')->nullable();
-            // $table->enum('shipment_status', ['shipping', 'draft', 'cancel'])->default('draft')->nullable();
             
             $table->integer('qty_sales')->default('0')->nullable();
             $table->decimal('total_order')->default('0')->nullable();

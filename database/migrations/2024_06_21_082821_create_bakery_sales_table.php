@@ -13,15 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('forecastings', function (Blueprint $table) {
-            $table->id('id_forecasting');
-            $table->dateTime('date');
-            $table->string('parameter');
-            $table->integer('value')->default('0');
-            $table->unsignedBigInteger('id_product')->nullable();
+        Schema::create('bakery_sale', function (Blueprint $table) {
+            $table->id('id_bakerysale');
+            $table->date('date');
+            $table->string('item_name');
+            $table->integer('quantity');
             $table->timestamps();
-
-            $table->foreign('id_product')->references('id_product')->on('products');
         });
     }
 
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('forecastings');
+        Schema::dropIfExists('bakery_sale');
     }
 };
