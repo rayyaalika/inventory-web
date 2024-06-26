@@ -313,7 +313,7 @@
                                                 <input type="hidden" name="existing_address_picture" value="{{ $sales->address_picture }}">
                                                 <!-- Tampilkan gambar alamat jika sudah ada -->
                                                 @if($sales->address_picture)
-                                                    <img id="currentAddressPicture" src="{{ asset('storage/' . $sales->address_picture) }}" alt="Current Address Picture" style="max-width: 200px; margin-top: 10px;">
+                                                    <img id="currentAddressPicture" src="{{ asset('address_picture/' . $sales->address_picture) }}" alt="Current Address Picture" style="max-width: 200px; margin-top: 10px;">
                                                 @endif
                                                 <!-- Tampilkan preview gambar yang diunggah -->
                                                 <img id="imagePreview" src="#" alt="Preview" style="max-width: 200px; display: none;">

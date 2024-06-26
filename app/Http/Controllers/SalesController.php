@@ -61,19 +61,23 @@ class SalesController extends Controller
         // Tangani unggahan gambar jika ada
         if ($request->hasFile('address_picture')) {
             // Simpan gambar ke penyimpanan
-            $imagePath = $request->file('address_picture')->store('address_pictures', 'public');
+            $imagePath = $request->file('address_picture');
+            $imageName = uniqid() . "_" . $imagePath->getClientOriginalName();
+            $imagePath->move(public_path('address_picture/'), $imageName);
 
             // Simpan path gambar ke dalam database
-            $validated['address_picture'] = $imagePath;
+            $validated['address_picture'] = $imageName;
         }
 
         // Tangani unggahan gambar jika ada
         if ($request->hasFile('payment_receipt')) {
             // Simpan gambar ke penyimpanan
-            $imagePath = $request->file('payment_receipt')->store('payment_receipt', 'public');
+            $imagePath = $request->file('payment_receipt');
+            $imageName = uniqid() . "_" . $imagePath->getClientOriginalName();
+            $imagePath->move(public_path('payment_receipt/'), $imageName);
 
             // Simpan path gambar ke dalam database
-            $validated['payment_receipt'] = $imagePath;
+            $validated['payment_receipt'] = $imageName;
         }
 
         $sales = Salesquotation::create([
@@ -242,14 +246,15 @@ class SalesController extends Controller
         if ($request->hasFile('address_picture')) {
             // Hapus gambar lama jika ada
             if ($sales->address_picture) {
-                Storage::disk('public')->delete($sales->address_picture);
+                unlink(public_path('address_picture/' . $sales->address_picture));
             }
+            // Simpan gambar ke penyimpanan
+            $imagePath = $request->file('address_picture');
+            $imageName = uniqid() . "_" . $imagePath->getClientOriginalName();
+            $imagePath->move(public_path('address_picture/'), $imageName);
 
-            // Simpan gambar baru
-            $imagePath = $request->file('address_picture')->store('address_pictures', 'public');
-
-            // Simpan path gambar baru ke dalam data penjualan
-            $validated['address_picture'] = $imagePath;
+            // Simpan path gambar ke dalam database
+            $validated['address_picture'] = $imageName;
         }
 
         // Ambil data produk penjualan dari input JSON
@@ -328,7 +333,7 @@ class SalesController extends Controller
             'delivery_company' => $request->input('delivery_company'),
             'customer_phone_number' => $request->input('customer_phone_number'),
             'customer_address' => $request->input('customer_address'),
-            'address_picture' => $request->input('address_picture'),
+            'address_picture' => $validated['address_picture'] ?? null,
             'send_date' => $request->input('send_date'),
             'sales_note' => $request->input('sales_note'),
             'qty_sales' => $request->input('qty_sales'),
