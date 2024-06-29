@@ -80,14 +80,24 @@
                       </li>
                   @endif
               @endif
-              <li class="sidebar-item">
-                  <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
-                    <span>
-                      <i class="ti ti-graph"></i>
-                    </span>
-                    <span class="hide-menu">Prediction</span>
-                  </a>
-                </li>
+              <li>
+                @php
+                $allowedRoles = ['Super Admin'];
+                $userRole = Auth::check() ? Auth::user()->role : null;
+                @endphp
+                @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                    @if(in_array($userRole, $allowedRoles))                    
+                        <li class="sidebar-item">
+                          <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                            <span>
+                              <i class="ti ti-graph"></i>
+                            </span>
+                            <span class="hide-menu">Prediction</span>
+                          </a>
+                        </li>
+                    @endif
+                @endif
+              </li>
               <li class="sidebar-item">
                 <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                   <span>
@@ -157,27 +167,6 @@
                 <div class="card-body">
                     <h5 class="card-title fw-semibold mb-4">Inventory Product</h5>
                     <div class="d-sm-flex d-block align-items-center justify-content-end mb-1 font-button">
-                        {{-- <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1"> Material Promo </a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Config Promo</a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Update bach Status</a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Sync to Googlesheet</a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Donwload Stock</a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Download</a>
-                        </div>
-                        <div class="mb-3 mb-sm-0">
-                            <a href="#" class="btn btn-secondary m-1">Add Favorite</a>
-                        </div> --}}
                         <div class="mb-3 mb-sm-0">
                             <a href="#addProductModal" class="btn btn-primary m-1" data-toggle="modal">
                                 <i class="ti ti-plus nav-small-cap-icon fs-2"></i>

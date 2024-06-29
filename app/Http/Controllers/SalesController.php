@@ -22,12 +22,21 @@ class SalesController extends Controller
         $product = Product::all();
         $salesproduct = salesproduct::all();
         $stock = Stock::with('product')->get();
+        $pendingAddressSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Address')->get();
+        $pendingShipmentSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Shipment')->get();
+        $waitingListSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Waiting List')->get();
+        $readyToApprovedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Ready to Approved')->get();
+        $collectedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Collected')->get();
+        $completedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Completed')->get();
+
         return view('auth.sales.sales', [
             'salesData' => $sales,
             'store' => $store,
             'product' => $product,
             'stock' => $stock,
-            'salesproduct' => $salesproduct
+            'salesproduct' => $salesproduct,
+            'tab1Sales' => $pendingAddressSales->merge($pendingShipmentSales)->merge($waitingListSales),
+            'tab2Sales' => $readyToApprovedSales->merge($collectedSales)->merge($completedSales)
         ]);
     }
 

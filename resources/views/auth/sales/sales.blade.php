@@ -95,14 +95,24 @@
                               </li>
                           @endif
                       @endif
-                      <li class="sidebar-item">
-                          <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
-                            <span>
-                              <i class="ti ti-graph"></i>
-                            </span>
-                            <span class="hide-menu">Prediction</span>
-                          </a>
-                        </li>
+                      <li>
+                        @php
+                        $allowedRoles = ['Super Admin'];
+                        $userRole = Auth::check() ? Auth::user()->role : null;
+                        @endphp
+                        @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                            @if(in_array($userRole, $allowedRoles))                    
+                                <li class="sidebar-item">
+                                  <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                                    <span>
+                                      <i class="ti ti-graph"></i>
+                                    </span>
+                                    <span class="hide-menu">Prediction</span>
+                                  </a>
+                                </li>
+                            @endif
+                        @endif
+                      </li>
                       <li class="sidebar-item">
                         <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                           <span>
@@ -184,12 +194,6 @@
                                     <a class="nav-link" id="tab2-tab" data-toggle="tab" href="#tab2"
                                         role="tab" aria-controls="tab2" aria-selected="false">Confirmed</a>
                                 </li>
-                                {{-- <li class="nav-item">
-                                  <a class="nav-link" id="tab3-tab" data-toggle="tab" href="#tab3" role="tab" aria-controls="tab3" aria-selected="false">Offline</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="tab4-tab" data-toggle="tab" href="#tab4" role="tab" aria-controls="tab4" aria-selected="false">Mobile</a>
-                                </li> --}}
                             </ul>
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="tab1" role="tabpanel"
@@ -204,6 +208,143 @@
                                         </div>
                                     </div>
                                     <table class="table font-button">
+                                        <thead>
+                                            <tr>
+                                                <th>Action</th>
+                                                <th>Date</th>
+                                                <th>SQ Numbering</th>
+                                                <th>Socmed Type</th>
+                                                <th>Customer Name</th>
+                                                <th>Phone</th>
+                                                <th>Address</th>
+                                                <th>Company Delivery</th>
+                                                <th>Total</th>
+                                                <th>Notes</th>
+                                                <th>No Resi</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($tab1Sales as $sales)
+                                                <tr>
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <button type="button"
+                                                                class="btn btn-primary dropdown-toggle"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="ti ti-list nav-small-cap-icon fs-3"
+                                                                    data-toggle="tooltip" title="Actions"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item"
+                                                                        href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                                        Sales</a></li>
+                                                                <li><a class="dropdown-item" href=""
+                                                                        data-toggle="modal"
+                                                                        data-target="#paymentSalesModal{{ $sales->id_sales }}">
+                                                                        Resi & Payment</a></li>
+                                                                <li><a class="dropdown-item text-danger"
+                                                                        href="" data-toggle="modal"
+                                                                        data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
+                                                                        Sales</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ $sales->transaction_date }}</td>
+                                                    <td>{{ $sales->sq_numbering }}</td>
+                                                    <td>{{ $sales->socmed_type }}</td>
+                                                    <td>{{ $sales->customer_name }}</td>
+                                                    <td>{{ $sales->customer_phone_number }}</td>
+                                                    <td>{{ $sales->customer_address }}</td>
+                                                    <td>{{ $sales->delivery_company }}</td>
+                                                    <td>{{ $sales->total_order }}</td>
+                                                    <td>{{ $sales->sales_note }}</td>
+                                                    <td>{{ $sales->resi_number }}</td>
+                                                    <td>
+                                                        <form
+                                                            action="{{ url('/sales/sales-status-update/' . $sales->id_sales) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="btn-group-a">
+                                                                    @php
+                                                                        $statusClass = '';
+                                                                        switch ($sales->sales_status) {
+                                                                            case 'Pending Address':
+                                                                                $statusClass = 'btn-warning';
+                                                                                break;
+                                                                            case 'Pending Shipment':
+                                                                                $statusClass = 'btn-danger';
+                                                                                break;
+                                                                            case 'Waiting List':
+                                                                                $statusClass = 'btn-success';
+                                                                                break;
+                                                                            case 'Ready to Approved':
+                                                                                $statusClass = 'btn-info';
+                                                                                break;
+                                                                            case 'Collected':
+                                                                                $statusClass = 'btn-primary';
+                                                                                break;
+                                                                            case 'Completed':
+                                                                                $statusClass = 'btn-dark';
+                                                                                break;
+                                                                            default:
+                                                                                $statusClass = '';
+                                                                                break;
+                                                                        }
+                                                                    @endphp
+
+                                                                    <button id="dropdown-toggle{{ $sales->id_sales }}"
+                                                                        type="button"
+                                                                        class="btn dropdown-toggle {{ $statusClass }}"
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false">
+                                                                        {{ $sales->sales_status }}
+                                                                    </button>
+                                                                    <ul class="dropdown-menu">
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button" value="Pending Address"
+                                                                                onclick="selectStatus('1', {{ $sales->id_sales }})">Pending
+                                                                                Address</button></li>
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button"
+                                                                                value="Pending Shipment"
+                                                                                onclick="selectStatus('2', {{ $sales->id_sales }})">Pending
+                                                                                Shipment</button></li>
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button" value="Waiting List"
+                                                                                onclick="selectStatus('3', {{ $sales->id_sales }})">Waiting
+                                                                                List</button></li>
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button"
+                                                                                value="Ready to Approved"
+                                                                                onclick="selectStatus('4', {{ $sales->id_sales }})">Ready
+                                                                                to Approved</button></li>
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button" value="Collected"
+                                                                                onclick="selectStatus('5', {{ $sales->id_sales }})">Collected</button>
+                                                                        </li>
+                                                                        <li><button class="dropdown-item"
+                                                                                type="button" value="Completed"
+                                                                                onclick="selectStatus('6', {{ $sales->id_sales }})">Completed</button>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                <input type="hidden"
+                                                                    id="salesStatusInput_{{ $sales->id_sales }}"
+                                                                    name="sales_status"
+                                                                    value="{{ $sales->sales_status }}">
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                                    <table class="table font-button mt-5">
                                         <thead>
                                             <tr>
                                                 <th>Action</th>
@@ -226,7 +367,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($salesData as $sales)
+                                            @forelse ($tab2Sales as $sales)
                                                 <tr>
                                                     <td>
                                                         <div class="btn-group">
@@ -345,65 +486,14 @@
                                                         </form>
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                            <tr>
+                                                <td colspan="11" class="text-center">No sales data available</td>
+                                            </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="tab-pane fade" id="tab2" role="tabpanel"
-                                    aria-labelledby="tab2-tab">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>Alamat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Jane Smith</td>
-                                                <td>jane@example.com</td>
-                                                <td>456 Avenue, Town</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {{-- <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
-                                  <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th>Nama</th>
-                                        <th>Email</th>
-                                        <th>Alamat</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <td>Mike Johnson</td>
-                                        <td>mike@example.com</td>
-                                        <td>789 Road, Village</td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div>
-                                <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
-                                  <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th>Nama</th>
-                                        <th>Email</th>
-                                        <th>Alamat</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <td>Mike Johnson</td>
-                                        <td>mike@example.com</td>
-                                        <td>789 Road, Village</td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div> --}}
                             </div>
                         </div>
 
@@ -610,7 +700,7 @@
                                             action="{{ url('sales/payment/' . $sales->id_sales) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <div class="modal-header">
-                                                <h4 class="modal-title">Payment {{ $sales->customer_name }}</h4>
+                                                <h4 class="modal-title">Resi & Payment {{ $sales->customer_name }}</h4>
                                                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">	
@@ -620,7 +710,7 @@
                                                     <input name="resi_number" type="number" class="form-control" value="{{$sales->resi_number}}" aria-label="name">
                                                   </div>
                                                   <div class="col mb-3">
-                                                    <label for="formFile" class="form-label">Payment Receipt</label>
+                                                    <label for="formFile" class="form-label">Proof of Payment</label>
                                                     <input name="payment_receipt" class="form-control" type="file" id="formFile{{ $sales->id_sales }}" onchange="previewImage(event, {{ $sales->id_sales }})">
                                                     <input type="hidden" name="existing_payment_receipt" value="{{ $sales->payment_receipt }}">
                                                     @if($sales->payment_receipt)
@@ -1221,7 +1311,6 @@
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     {{-- <script>
       $(document).ready(function(){
         $('#myTab a').on('click', function (e) {
@@ -1333,50 +1422,13 @@
                         default:
                             break;
                     }
+                    window.location.reload();
                 })
                 .catch(error => {
                     console.error('Error updating sales status:', error);
                 });
         }
     </script>
-
-    {{-- <script>
-      function selectStatus(status) {
-        document.getElementById("salesStatusInput").value = status;
-        document.querySelector('.btn-secondary').innerText = event.target.innerText;
-      }
-    </script>
-    <script>
-      function selectStatus(status) {
-        // Mengatur warna tombol dropdown toggle sesuai dengan opsi yang dipilih
-        var dropdownToggle = document.querySelector('.btn-group-a .btn');
-        dropdownToggle.innerText = event.target.innerText;
-        dropdownToggle.classList.remove('btn-selected-pending-address', 'btn-selected-pending-shipment', 'btn-selected-waiting-list', 'btn-selected-ready-to-approved', 'btn-selected-collected', 'btn-selected-completed');
-        switch (status) {
-          case '1':
-            dropdownToggle.classList.add('btn-selected-pending-address');
-            break;
-          case '2':
-            dropdownToggle.classList.add('btn-selected-pending-shipment');
-            break;
-          case '3':
-            dropdownToggle.classList.add('btn-selected-waiting-list');
-            break;
-          case '4':
-            dropdownToggle.classList.add('btn-selected-ready-to-approved');
-            break;
-          case '5':
-            dropdownToggle.classList.add('btn-selected-collected');
-            break;
-          case '6':
-            dropdownToggle.classList.add('btn-selected-completed');
-            break;
-          default:
-            break;
-        }
-      }
-    </script> --}}
-
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>

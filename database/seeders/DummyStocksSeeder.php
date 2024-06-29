@@ -18,7 +18,7 @@ class DummyStocksSeeder extends Seeder
         $StocksData = [
             [
                 'id_product'=>1,
-                'wh_stock' => 0,
+                'wh_stock' => 100,
                 'in_stock' => 0,
                 'out_stock' => 0,
                 'real_stock' => 0,
@@ -26,7 +26,7 @@ class DummyStocksSeeder extends Seeder
             ],
             [
                 'id_product'=>2,
-                'wh_stock' => 0,
+                'wh_stock' => 100,
                 'in_stock' => 0,
                 'out_stock' => 0,
                 'real_stock' => 0,

@@ -76,14 +76,24 @@
                       </li>
                   @endif
               @endif
-              <li class="sidebar-item">
-                  <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
-                    <span>
-                      <i class="ti ti-graph"></i>
-                    </span>
-                    <span class="hide-menu">Prediction</span>
-                  </a>
-                </li>
+              <li>
+                @php
+                $allowedRoles = ['Super Admin'];
+                $userRole = Auth::check() ? Auth::user()->role : null;
+                @endphp
+                @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                    @if(in_array($userRole, $allowedRoles))                    
+                        <li class="sidebar-item">
+                          <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                            <span>
+                              <i class="ti ti-graph"></i>
+                            </span>
+                            <span class="hide-menu">Prediction</span>
+                          </a>
+                        </li>
+                    @endif
+                @endif
+              </li>
               <li class="sidebar-item">
                 <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                   <span>

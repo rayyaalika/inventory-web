@@ -78,8 +78,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/{id}', [ProfileController::class,'index']);
     Route::post('/profile/edit/{id}', [ProfileController::class,'edit_profile']); 
 
-    Route::get('/prediction', [PredictionController::class,'index']);
+    Route::get('/prediction', [PredictionController::class,'index'])->name('predictions');
     Route::post('/prediction/predict', [PredictionController::class,'predict'])->name('prediction.predict');
+
 
 });
 

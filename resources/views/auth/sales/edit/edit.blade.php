@@ -95,6 +95,24 @@
                                 </li>
                             @endif
                         @endif
+                        <li>
+                            @php
+                            $allowedRoles = ['Super Admin'];
+                            $userRole = Auth::check() ? Auth::user()->role : null;
+                            @endphp
+                            @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                                @if(in_array($userRole, $allowedRoles))                    
+                                    <li class="sidebar-item">
+                                      <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                                        <span>
+                                          <i class="ti ti-graph"></i>
+                                        </span>
+                                        <span class="hide-menu">Prediction</span>
+                                      </a>
+                                    </li>
+                                @endif
+                            @endif
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                                 <span>
@@ -385,7 +403,7 @@
                                         <input type="hidden" name="payment_receipt" value="">
                                         <input type="hidden" name="resi_number" value="">
                                         <div class="d-sm-flex d-block align-items-center justify-content-end mb-1">
-                                            <a href="{{ url('/sales') }}" class="btn btn-default m-1">Back</a>
+                                            <a href="javascript:history.back()" class="btn btn-default m-1">Back</a>
                                             <input id="submitButton" type="submit" class="btn btn-primary m-1"
                                                 value="Update Sales">
                                         </div>

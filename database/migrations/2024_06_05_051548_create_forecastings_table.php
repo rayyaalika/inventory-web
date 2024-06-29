@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('forecastings', function (Blueprint $table) {
             $table->id('id_forecasting');
-            $table->dateTime('date');
+            $table->date('date');
             $table->string('parameter');
-            $table->float('value')->default('0');
+            $table->Integer('value')->default('0');
             // $table->unsignedBigInteger('id_product')->nullable();
             $table->timestamps();
 

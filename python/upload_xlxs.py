@@ -1,0 +1,53 @@
+import pandas as pd
+import mysql.connector
+from mysql.connector import Error
+
+# Baca file Excel
+file_path = 'C:/Users/User/Downloads/item.xlsx'
+df = pd.read_excel(file_path)
+
+# Buat koneksi ke database MySQL
+try:
+    connection = mysql.connector.connect(
+        host='localhost',  # Ubah jika host MySQL Anda berbeda
+        user='root',       # Ubah jika user MySQL Anda berbeda
+        password='',  # Ganti dengan password MySQL Anda
+        database='db_inventory_web'
+    )
+
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT DATABASE();")
+        record = cursor.fetchone()
+        print("Connected to database: ", record)
+
+        # Membuat tabel baru, misalnya 'bakery_sales'
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS bakery_sale (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            date DATE,
+            item_name VARCHAR(255),
+            quantity INT
+        )
+        """)
+
+        # Menghapus data jika ingin mengisi ulang tabel
+        cursor.execute("DELETE FROM bakery_sale")
+
+        # Masukkan data ke tabel
+        for i, row in df.iterrows():
+            cursor.execute("""
+            INSERT INTO bakery_sale (date, item_name, quantity) 
+            VALUES (%s, %s, %s)
+            """, tuple(row))
+
+        connection.commit()
+        print("Data berhasil dimasukkan ke dalam tabel bakery_sale")
+
+except Error as e:
+    print("Error saat menghubungkan ke MySQL", e)
+finally:
+    if (connection.is_connected()):
+        cursor.close()
+        connection.close()
+        print("Koneksi MySQL ditutup")

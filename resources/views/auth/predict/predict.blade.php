@@ -76,14 +76,24 @@
                     </li>
                 @endif
             @endif
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
-                  <span>
-                    <i class="ti ti-graph"></i>
-                  </span>
-                  <span class="hide-menu">Prediction</span>
-                </a>
-              </li>
+            <li>
+              @php
+              $allowedRoles = ['Super Admin'];
+              $userRole = Auth::check() ? Auth::user()->role : null;
+              @endphp
+              @if(Auth::check() && !in_array($userRole, ['Store Admin', 'Supplier', 'Cutomer Service', 'Sales Order']))
+                  @if(in_array($userRole, $allowedRoles))                    
+                      <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ url('/prediction') }}" aria-expanded="false">
+                          <span>
+                            <i class="ti ti-graph"></i>
+                          </span>
+                          <span class="hide-menu">Prediction</span>
+                        </a>
+                      </li>
+                  @endif
+              @endif
+            </li>
             <li class="sidebar-item">
               <a class="sidebar-link" href="{{ url('/product') }}" aria-expanded="false">
                 <span>
@@ -146,13 +156,6 @@
       </header>
       <!--  Header End -->
 
-      @if(session('alert'))
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            {{ session('alert') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      @endif
-
     <div class="container-fluid">
       <div class="container-fluid">
         <div class="col-lg-12 d-flex align-items-stretch">
@@ -161,6 +164,12 @@
                     <div class="mb-3 mb-sm-0">
                         <h5 class="card-title fw-semibold">Product Prediction</h5>
                     </div>
+                    @if(session('alert'))
+                      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                          {{ session('alert') }}
+                          <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    @endif
                     <form action="{{ route('prediction.predict') }}" method="post">
                         @csrf
                         <label for="item_name">Select item to be predicted: </label>
@@ -181,38 +190,46 @@
         <div class="col-lg-12 d-flex align-items-stretch">
             <div class="card w-100">
                 <div class="card-body">
+                  <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                     <div class="mb-3 mb-sm-0">
-                        <h5 class="card-title fw-semibold">Prediction Result</h5>
+                      <h5 class="card-title fw-semibold">Prediction Result</h5>
                     </div>
-    
-                    @if(isset($predictionsData) && count($predictionsData) > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Item Name</th>
-                                        @for($i = 0; $i < 12; $i++)
-                                            <th>{{ date('F', mktime(0, 0, 0, $i + 1, 1)) }}</th>
-                                        @endfor
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($predictionsData as $data)
-                                        <tr>
-                                            <td>{{ $data['item_name'] }}</td>
-                                            @foreach($data['predictions'] as $prediction)
-                                                <td>{{ $prediction }}</td>
-                                            @endforeach
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p>No prediction data available.</p>
-                    @endif
-    
-                    </div>
+                  </div>                  
+                    <form method="GET" action="{{ route('predictions') }}">
+                      <label for="item_name">Select item to show prediction result: </label>
+                      <select class="form-select" name="parameter" onchange="this.form.submit()">
+                          <option value="" selected>-- select --</option>
+                          @foreach ($selectitems as $index => $item)
+                              <option value="{{ $item }}" {{ $selectedParameter == $item ? 'selected' : '' }}>{{ $item }}</option>
+                          @endforeach
+                      </select>
+                      @if(!empty($selectedParameter))
+                      <div class="table-responsive">
+                        <table class="table font-button mt-3">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Value</th>
+                            </tr>
+                          </thead>
+                              <tbody>
+                                @forelse($predictionsData as $data)
+                                      <tr>
+                                          <td>{{ $data['date'] }}</td>
+                                          <td>{{ $data['value'] }}</td>
+                                      </tr>
+                                @empty
+                                      <tr>
+                                        <td colspan="11" class="text-center">No prediction data available</td>
+                                      </tr>
+                                @endforelse
+                              </tbody>
+                          </table>
+                      </div>
+                      @endif
+                   </form>
+                   {{-- <div id="chartpredict"></div> --}}
+                  </div>
                 </div>
             </div>
         </div>
@@ -262,7 +279,49 @@
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  {{-- <script>
+    // Ambil data dari PHP ke JavaScript
+    var predictionsData = @json($predictionsData);
 
+    // Persiapkan data untuk chart
+    var chartData = {
+        series: [{
+            name: "Predictions",
+            data: predictionsData.map(data => ({
+                x: new Date(data.date),
+                y: data.value
+            }))
+        }],
+        chart: {
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            }
+        },
+        dataLabels: {
+            enabled: true
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            type: 'datetime',
+            title: {
+                text: 'Date'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Value'
+            }
+        }
+    };
+
+    // Inisialisasi grafik menggunakan ApexCharts
+    var chart = new ApexCharts(document.querySelector("#chartpredict"), chartData);
+    chart.render();
+  </script> --}}
 </body>
 
 </html>

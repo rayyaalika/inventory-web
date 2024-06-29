@@ -5,16 +5,39 @@ namespace App\Http\Controllers;
 use App\Models\bakerysales;
 use App\Models\Forecasting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class PredictionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Mengambil nama item unik dari tabel bakerysales
-        $items = bakerysales::distinct()->pluck('item_name');
-        return view('auth.predict.predict', compact('items'));
+        $item = bakerysales::distinct()->pluck('item_name');
+
+        // Mengambil semua parameter unik dari tabel Forecasting
+        $selectitem = Forecasting::distinct()->pluck('parameter');
+
+        // Get the selected parameter from the request
+        $selectedParameter = $request->input('parameter', '');
+
+        // If a parameter is selected, filter the predictions based on that parameter
+        if ($selectedParameter) {
+            $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+        } else {
+            // If no parameter is selected, fetch all predictions
+            $predictions = Forecasting::all();
+        }
+
+        return view('auth.predict.predict', [
+            'items' => $item,
+            'selectitems' => $selectitem,
+            'selectedParameter' => $selectedParameter,
+            'predictionsData' => $predictions,
+        ]);
     }
+
+
 
     public function predict(Request $request)
     {
@@ -28,7 +51,7 @@ class PredictionController extends Controller
         }
 
         // Kirim request POST ke Flask untuk prediksi
-        $response = Http::timeout(300)->post('http://localhost:5000/superadmin', [
+        $response = Http::timeout(180)->post('http://localhost:5000/superadmin', [
             'article' => $article,
         ]);
 
@@ -50,28 +73,30 @@ class PredictionController extends Controller
                     'predictions' => $predictions,
                 ];
 
+                // dd($predictionsData);
+
                 // Simpan hasil prediksi ke dalam tabel forecasting
                 foreach ($dates as $index => $date) {
                     Forecasting::create([
                         'date' => $date,
                         'parameter' => $article,
-                        'value' => $predictions[$index], // Konversi nilai ke float sebelum disimpan
+                        'value' => $predictions[$index][0],
                     ]);
                 }
             } else {
-                return view('prediction_result', ['error_message' => 'Response from Flask does not contain predictions or dates.']);
+                return response()->json(['error' => 'Item not found'], 404);
             }
         } else {
-            return view('prediction_result', ['error_message' => 'Failed to retrieve predictions from Flask.']);
+            return response()->json(['error' => 'Product not found'], 404);
         }
 
-        return view('prediction_result', ['predictionsData' => $predictionsData]);
+        return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
     }
     // public function index()
     // {
     //      return view('auth.predict.predict');
     // }
-    
+
     // public function predict(Request $request)
     // {
     //     // Mengambil 2 nama item unik dari tabel bakerysales
