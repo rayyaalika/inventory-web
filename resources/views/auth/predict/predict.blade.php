@@ -7,6 +7,20 @@
   <title>InventoryNest</title>
   <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.png" />
   <link rel="stylesheet" href="../assets/css/styles.min.css" />
+  <style>
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.589); /* Warna latar belakang overlay */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Pastikan overlay muncul di atas elemen lainnya */
+    }
+    </style>
 </head>
 
 <body>
@@ -170,7 +184,7 @@
                           <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                       </div>
                     @endif
-                    <form action="{{ route('prediction.predict') }}" method="post">
+                    <form action="{{ route('prediction.predict') }}" method="post" id="predictionForm">
                         @csrf
                         <label for="item_name">Select item to be predicted: </label>
                         <select class="form-select mb-3 mt-1" id="item_name" name="item_name" required>
@@ -228,7 +242,6 @@
                       </div>
                       @endif
                    </form>
-                   {{-- <div id="chartpredict"></div> --}}
                   </div>
                 </div>
             </div>
@@ -267,6 +280,14 @@
       </div>      
     </div>
   </div>
+
+  <!-- Elemen overlay loading -->
+  <div id="loadingOverlay" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
   <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/sidebarmenu.js"></script>
@@ -274,6 +295,12 @@
   <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="../assets/js/dashboard.js"></script>
+
+  <script>
+    document.getElementById('predictionForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+    </script>
 
   <!-- In your main layout blade file or head section -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
