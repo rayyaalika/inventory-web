@@ -12,20 +12,12 @@ class PredictionController extends Controller
 {
     public function index(Request $request)
     {
-        // Mengambil nama item unik dari tabel bakerysales
         $item = bakerysales::distinct()->pluck('item_name');
-
-        // Mengambil semua parameter unik dari tabel Forecasting
         $selectitem = Forecasting::distinct()->pluck('parameter');
-
-        // Get the selected parameter from the request
         $selectedParameter = $request->input('parameter', '');
-
-        // If a parameter is selected, filter the predictions based on that parameter
         if ($selectedParameter) {
             $predictions = Forecasting::where('parameter', $selectedParameter)->get();
         } else {
-            // If no parameter is selected, fetch all predictions
             $predictions = Forecasting::all();
         }
 
@@ -42,15 +34,11 @@ class PredictionController extends Controller
     public function predict(Request $request)
     {
         $article = $request->input('item_name');
-
-        // Cek apakah prediksi untuk item ini sudah ada
         $existingPrediction = Forecasting::where('parameter', $article)->first();
 
         if ($existingPrediction) {
             return redirect()->back()->with('alert', 'Prediction for this item has already been made.');
         }
-
-        // Kirim request POST ke Flask untuk prediksi
         $response = Http::timeout(180)->post('http://localhost:5000/superadmin', [
             'article' => $article,
         ]);
@@ -74,8 +62,6 @@ class PredictionController extends Controller
                 ];
 
                 // dd($predictionsData);
-
-                // Simpan hasil prediksi ke dalam tabel forecasting
                 foreach ($dates as $index => $date) {
                     Forecasting::create([
                         'date' => $date,

@@ -88,7 +88,7 @@ class AdminController extends Controller
     }
 
 
-    function storeadmin()
+    function storeadmin(Request $request)
     {
         // Mengambil semua data sales
         $salesData = Salesquotation::all();
@@ -136,6 +136,20 @@ class AdminController extends Controller
             $totalCollectedDeliveriesPerMonth[] = $collectedDeliveriesPerMonth[$i] ?? 0;
         }
 
+        // Mengambil semua parameter unik dari tabel Forecasting
+        $selectitem = Forecasting::distinct()->pluck('parameter');
+
+        // Get the selected parameter from the request
+        $selectedParameter = $request->input('parameter', '');
+
+        // If a parameter is selected, filter the predictions based on that parameter
+        if ($selectedParameter) {
+            $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+        } else {
+            // If no parameter is selected, fetch all predictions
+            $predictions = Forecasting::all();
+        }
+
         // Mengirimkan data ke view
         return view('auth.dashboard.dashboard', [
             'salesData' => $salesData,
@@ -145,10 +159,13 @@ class AdminController extends Controller
             'totalSalesAmountPerMonth' => $totalSalesAmountPerMonth,
             'totalSalesPerMonth' => $totalSalesPerMonth,
             'totalCollectedDeliveriesPerMonth' => $totalCollectedDeliveriesPerMonth,
+            'selectitems' => $selectitem,
+            'selectedParameter' => $selectedParameter,
+            'predictionsData' => $predictions,
         ]);
     }
 
-    function supplier()
+    function supplier(Request $request)
     {
         // Mengambil semua data sales
         $salesData = Salesquotation::all();
@@ -196,6 +213,20 @@ class AdminController extends Controller
             $totalCollectedDeliveriesPerMonth[] = $collectedDeliveriesPerMonth[$i] ?? 0;
         }
 
+        // Mengambil semua parameter unik dari tabel Forecasting
+        $selectitem = Forecasting::distinct()->pluck('parameter');
+
+        // Get the selected parameter from the request
+        $selectedParameter = $request->input('parameter', '');
+
+        // If a parameter is selected, filter the predictions based on that parameter
+        if ($selectedParameter) {
+            $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+        } else {
+            // If no parameter is selected, fetch all predictions
+            $predictions = Forecasting::all();
+        }
+
         // Mengirimkan data ke view
         return view('auth.dashboard.dashboard', [
             'salesData' => $salesData,
@@ -205,10 +236,13 @@ class AdminController extends Controller
             'totalSalesAmountPerMonth' => $totalSalesAmountPerMonth,
             'totalSalesPerMonth' => $totalSalesPerMonth,
             'totalCollectedDeliveriesPerMonth' => $totalCollectedDeliveriesPerMonth,
+            'selectitems' => $selectitem,
+            'selectedParameter' => $selectedParameter,
+            'predictionsData' => $predictions,
         ]);
     }
 
-    function customerservice()
+    function customerservice(Request $request)
     {
         // Mengambil semua data sales
         $salesData = Salesquotation::all();
@@ -256,6 +290,20 @@ class AdminController extends Controller
             $totalCollectedDeliveriesPerMonth[] = $collectedDeliveriesPerMonth[$i] ?? 0;
         }
 
+        // Mengambil semua parameter unik dari tabel Forecasting
+        $selectitem = Forecasting::distinct()->pluck('parameter');
+
+        // Get the selected parameter from the request
+        $selectedParameter = $request->input('parameter', '');
+
+        // If a parameter is selected, filter the predictions based on that parameter
+        if ($selectedParameter) {
+            $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+        } else {
+            // If no parameter is selected, fetch all predictions
+            $predictions = Forecasting::all();
+        }
+
         // Mengirimkan data ke view
         return view('auth.dashboard.dashboard', [
             'salesData' => $salesData,
@@ -265,10 +313,13 @@ class AdminController extends Controller
             'totalSalesAmountPerMonth' => $totalSalesAmountPerMonth,
             'totalSalesPerMonth' => $totalSalesPerMonth,
             'totalCollectedDeliveriesPerMonth' => $totalCollectedDeliveriesPerMonth,
+            'selectitems' => $selectitem,
+            'selectedParameter' => $selectedParameter,
+            'predictionsData' => $predictions,
         ]);
     }
 
-    function salesorder()
+    function salesorder(Request $request)
     {
         // Mengambil semua data sales
         $salesData = Salesquotation::all();
@@ -316,6 +367,20 @@ class AdminController extends Controller
             $totalCollectedDeliveriesPerMonth[] = $collectedDeliveriesPerMonth[$i] ?? 0;
         }
 
+        // Mengambil semua parameter unik dari tabel Forecasting
+        $selectitem = Forecasting::distinct()->pluck('parameter');
+
+        // Get the selected parameter from the request
+        $selectedParameter = $request->input('parameter', '');
+
+        // If a parameter is selected, filter the predictions based on that parameter
+        if ($selectedParameter) {
+            $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+        } else {
+            // If no parameter is selected, fetch all predictions
+            $predictions = Forecasting::all();
+        }
+
         // Mengirimkan data ke view
         return view('auth.dashboard.dashboard', [
             'salesData' => $salesData,
@@ -325,6 +390,9 @@ class AdminController extends Controller
             'totalSalesAmountPerMonth' => $totalSalesAmountPerMonth,
             'totalSalesPerMonth' => $totalSalesPerMonth,
             'totalCollectedDeliveriesPerMonth' => $totalCollectedDeliveriesPerMonth,
+            'selectitems' => $selectitem,
+            'selectedParameter' => $selectedParameter,
+            'predictionsData' => $predictions,
         ]);
     }
 

@@ -13,7 +13,7 @@ class AuthController extends Controller
         return view('guest.login', $data);
     }
 
-    public function login_action(Request $request) //login action class login yang bisa dipanggil ke view
+    public function login_action(Request $request)
     {
         $request->validate([
             'email' => 'required',
@@ -25,9 +25,8 @@ class AuthController extends Controller
         ];
 
         if (Auth::attempt($infologin)) {
-            // echo "sukses";exit();
             if (Auth::user() && Auth::user()->role == 'Super Admin'){
-                return redirect()->route('superadmin'); //superadmin manggil dari name di route
+                return redirect()->route('superadmin'); 
             } elseif (Auth::user() && Auth::user()->role == 'Store Admin'){
                 return redirect('storeadmin');
             } elseif (Auth::user() && Auth::user()->role == 'Supplier'){

@@ -33,19 +33,9 @@ class UserController extends Controller
             'role' => $request->role,
             'password' => Hash::make($request->password)
         ]);
-
-        // $insert =  $user->save();
-        // if ($insert) {
-        //     return redirect()->back()->with('success', 'Data berhasil ditambah !');
-        // } else {
-        //     return redirect()->back()->with('failed', 'Data gagal ditambah !');
-        // }
-        
         $user->save();
 
         return redirect()->back()->with('success', 'Data berhasil ditambah !');
-        // return redirect('/user');
-        // return view('auth.user.user');
     }
 
     public function edit_user(Request $request, $id)
@@ -65,7 +55,6 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->role = $request->role;
 
-        // Jika password diisi, update password
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }

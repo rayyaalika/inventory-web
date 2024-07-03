@@ -14,20 +14,12 @@ class ProductController extends Controller
 {
     public function index()
     {
-        // $products = Product::join('categories', 'products.id_category', '=', 'categories.id_category')
-        //     ->join('stocks', 'products.id_product', '=', 'stocks.id_product')
-        //     ->select('products.*', 'stocks.id_stock')
-        //     ->with('categories')
-        //     ->get();
-
         $products = Product::all();
         $categories = Category::all();
         $supplier = Supplier::all();
         $subCategory = Subcategory::all();
-
         $stocks = Stock::with('product')->get();
         
-
         return view('auth.product.product', [
             'products' => $products,
             'categories' => $categories,
@@ -39,8 +31,7 @@ class ProductController extends Controller
 
     public function create_product(Request $request)
     {
-        try {
-            
+        try {            
             $request->validate([
                 'product_name' => 'required',
                 'product_barcode' => 'required',
@@ -54,9 +45,7 @@ class ProductController extends Controller
                 'id_category' => 'required',
                 'id_sub_category' => 'required',
             ]);
-
             $user_id = Auth::id();
-
             $product = new Product([
                 'product_name' => $request->product_name,
                 'product_barcode' => $request->product_barcode,
@@ -72,9 +61,7 @@ class ProductController extends Controller
                 'id_sub_category' => $request->id_sub_category,
                 'id_user' => $user_id,
             ]);
-
             $product->save();
-
             $stock = new Stock([
                 'wh_stock' => 0,
                 'in_stock' => 0,
@@ -83,7 +70,6 @@ class ProductController extends Controller
                 'alert_stock' => 0,
                 'id_product' => $product->id_product
             ]);
-
             $stock->save();
 
             return redirect()->back()->with('success', 'Data berhasil ditambah!');

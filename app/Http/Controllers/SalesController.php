@@ -15,8 +15,6 @@ class SalesController extends Controller
 {
     public function index()
     {
-        // return view('auth.sales.sales');
-
         $sales = Salesquotation::with('salesproduct.product')->get();
         $store = Store::all();
         $product = Product::all();
