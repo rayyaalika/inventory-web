@@ -15,24 +15,24 @@ class ShippingController extends Controller
     public function index()
     {
         {
-            $sales = Salesquotation::with('salesproduct.product')->get();
+            $sales = Salesquotation::with('salesproduct.product')->orderBy('created_at', 'desc')->paginate(5);
             $store = Store::all();
             $product = Product::all();
             $salesproduct = salesproduct::all();
             $stock = Stock::with('product')->get();
-            $pendingAddressSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Address')->get();
-            $pendingShipmentSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Shipment')->get();
-            $waitingListSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Waiting List')->get();
-            $readyToApprovedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Ready to Approved')->get();
-            $collectedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Collected')->get();
-            $completedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Completed')->get();
-            $shippingpost = Salesquotation::with('salesproduct.product')->where('delivery_company', 'POST')->get();
-            $shippinghlife = Salesquotation::with('salesproduct.product')->where('delivery_company', 'HLIFE')->get();
-            $shippingfm = Salesquotation::with('salesproduct.product')->where('delivery_company', 'FAMILY MART')->get();
-            $shippinghct = Salesquotation::with('salesproduct.product')->where('delivery_company', 'HCT')->get();
-            $shipping711 = Salesquotation::with('salesproduct.product')->where('delivery_company', '7-11')->get();
-            $shippingshopee = Salesquotation::with('salesproduct.product')->where('delivery_company', 'SHOPEE SHOP')->get();
-            $shippingoffline = Salesquotation::with('salesproduct.product')->where('delivery_company', 'OFFLINE')->get();
+            $pendingAddressSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Address')->orderBy('created_at', 'desc')->get();
+            $pendingShipmentSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Shipment')->orderBy('created_at', 'desc')->get();
+            $waitingListSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Waiting List')->orderBy('created_at', 'desc')->get();
+            $readyToApprovedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Ready to Approved')->orderBy('created_at', 'desc')->get();
+            $collectedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Collected')->orderBy('created_at', 'desc')->get();
+            $completedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Completed')->orderBy('created_at', 'desc')->get();
+            $shippingpost = Salesquotation::with('salesproduct.product')->where('delivery_company', 'POST')->orderBy('created_at', 'desc')->get();
+            $shippinghlife = Salesquotation::with('salesproduct.product')->where('delivery_company', 'HLIFE')->orderBy('created_at', 'desc')->get();
+            $shippingfm = Salesquotation::with('salesproduct.product')->where('delivery_company', 'FAMILY MART')->orderBy('created_at', 'desc')->get();
+            $shippinghct = Salesquotation::with('salesproduct.product')->where('delivery_company', 'HCT')->orderBy('created_at', 'desc')->get();
+            $shipping711 = Salesquotation::with('salesproduct.product')->where('delivery_company', '7-11')->orderBy('created_at', 'desc')->get();
+            $shippingshopee = Salesquotation::with('salesproduct.product')->where('delivery_company', 'SHOPEE SHOP')->orderBy('created_at', 'desc')->get();
+            $shippingoffline = Salesquotation::with('salesproduct.product')->where('delivery_company', 'OFFLINE')->orderBy('created_at', 'desc')->get();
     
             return view('auth.shipping.shipping', [
                 'salesData' => $sales,

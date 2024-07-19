@@ -14,18 +14,24 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
+        $products = Product::paginate(5);
         $categories = Category::all();
         $supplier = Supplier::all();
         $subCategory = Subcategory::all();
-        $stocks = Stock::with('product')->get();
+        $stock = Stock::with('product')->get();
+        
+        // Filter stocks where alert_stock equals wh_stock
+        $lowStockAlerts = $stock->filter(function($stock) {
+            return $stock->wh_stock <= $stock->alert_stock;
+        });
         
         return view('auth.product.product', [
             'products' => $products,
             'categories' => $categories,
             'supplier' => $supplier,
             'subCategory' => $subCategory,
-            'stocks' => $stocks
+            'stocks' => $stock,
+            'lowStockAlerts' => $lowStockAlerts
         ]);
     }
 

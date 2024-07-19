@@ -187,6 +187,17 @@
                               </a>
                         </div>
                     </div>
+                    @if($lowStockAlerts->isNotEmpty())
+                        <div class="alert alert-warning mt-2">
+                            <strong>Attention!</strong> The following items are running low on stock:
+                            <ul>
+                                @foreach($lowStockAlerts as $stock)
+                                    <li>{{ $stock->product->product_name }} - Stok: {{ $stock->wh_stock }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <div class="table-responsive">
                     <table class="table table-hover font-button">
                       <thead>
                         <tr>
@@ -243,6 +254,11 @@
                         @endforeach
                       </tbody>
                     </table>
+                    </div>
+                    <!-- Pagination Links -->
+                    <div class="d-flex justify-content-end">
+                      {{ $products->links('vendor.pagination.bootstrap-5')}}
+                    </div>
                 </div>
 
 

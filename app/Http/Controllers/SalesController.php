@@ -15,17 +15,19 @@ class SalesController extends Controller
 {
     public function index()
     {
-        $sales = Salesquotation::with('salesproduct.product')->get();
+        $sales = Salesquotation::with('salesproduct.product')->orderBy('created_at', 'desc')->get();
         $store = Store::all();
         $product = Product::all();
         $salesproduct = salesproduct::all();
         $stock = Stock::with('product')->get();
-        $pendingAddressSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Address')->get();
-        $pendingShipmentSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Shipment')->get();
-        $waitingListSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Waiting List')->get();
-        $readyToApprovedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Ready to Approved')->get();
-        $collectedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Collected')->get();
-        $completedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Completed')->get();
+        $pendingAddressSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Address')->orderBy('created_at', 'desc')->get();
+        $pendingShipmentSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Pending Shipment')->orderBy('created_at', 'desc')->get();
+        $waitingListSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Waiting List')->orderBy('created_at', 'desc')->get();
+        $readyToApprovedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Ready to Approved')->orderBy('created_at', 'desc')->get();
+        $collectedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Collected')->orderBy('created_at', 'desc')->get();
+        $completedSales = Salesquotation::with('salesproduct.product')->where('sales_status', 'Completed')->orderBy('created_at', 'desc')->get();
+        $tab1Sale = $pendingAddressSales->merge($pendingShipmentSales)->merge($waitingListSales);
+        $tab2Sale = $readyToApprovedSales->merge($collectedSales)->merge($completedSales);
 
         return view('auth.sales.sales', [
             'salesData' => $sales,
@@ -33,8 +35,8 @@ class SalesController extends Controller
             'product' => $product,
             'stock' => $stock,
             'salesproduct' => $salesproduct,
-            'tab1Sales' => $pendingAddressSales->merge($pendingShipmentSales)->merge($waitingListSales),
-            'tab2Sales' => $readyToApprovedSales->merge($collectedSales)->merge($completedSales)
+            'tab1Sales' => $tab1Sale,
+            'tab2Sales' => $tab2Sale
         ]);
     }
 

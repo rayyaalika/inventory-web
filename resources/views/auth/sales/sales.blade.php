@@ -211,8 +211,7 @@
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="tab1" role="tabpanel"
                                     aria-labelledby="tab1-tab">
-                                    <div
-                                        class="d-sm-flex d-block align-items-center justify-content-end mb-1 mt-10 font-button">
+                                    <div class="d-sm-flex d-block align-items-center justify-content-end mb-1 mt-10 font-button">
                                         <div class="mb-3 mb-sm-0">
                                             <a href="#addSalesModal" class="btn btn-primary m-3" data-toggle="modal">
                                                 <i class="ti ti-plus nav-small-cap-icon fs-3"></i>
@@ -220,6 +219,7 @@
                                             </a>
                                         </div>
                                     </div>
+                                    <div class="table-responsive">
                                     <table class="table font-button">
                                         <thead>
                                             <tr>
@@ -241,11 +241,11 @@
                                             @foreach ($tab1Sales as $sales)
                                                 <tr>
                                                     <td>
-                                                        <div class="btn-group">
+                                                        {{-- <div class="btn-group">
                                                             <button type="button"
                                                                 class="btn btn-primary dropdown-toggle"
                                                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <i class="ti ti-list nav-small-cap-icon fs-3"
+                                                                <i class="ti ti-dots nav-small-cap-icon fs-3"
                                                                     data-toggle="tooltip" title="Actions"></i>
                                                             </button>
                                                             <ul class="dropdown-menu">
@@ -261,6 +261,16 @@
                                                                         data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
                                                                         Sales</a>
                                                                 </li>
+                                                            </ul>
+                                                        </div> --}}
+                                                        <div class="btn-group">
+                                                            <a href="#" data-toggle="dropdown" aria-expanded="false">
+                                                                <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                                <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                                <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -355,8 +365,14 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    </div>
+                                         {{-- <!-- Pagination Links -->
+                                         <div class="d-flex justify-content-end">
+                                            {{ $tab1Sales->links('vendor.pagination.bootstrap-5')}}
+                                        </div> --}}
                                 </div>
                                 <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                                    <div class="table-responsive">
                                     <table class="table font-button mt-5">
                                         <thead>
                                             <tr>
@@ -383,7 +399,7 @@
                                             @forelse ($tab2Sales as $sales)
                                                 <tr>
                                                     <td>
-                                                        <div class="btn-group">
+                                                        {{-- <div class="btn-group">
                                                             <button type="button"
                                                                 class="btn btn-primary dropdown-toggle"
                                                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -403,6 +419,16 @@
                                                                         data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
                                                                         Sales</a>
                                                                 </li>
+                                                            </ul>
+                                                        </div> --}}
+                                                        <div class="btn-group">
+                                                            <a href="#" data-toggle="dropdown" aria-expanded="false">
+                                                                <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                                <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                                <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -506,6 +532,11 @@
                                             @endforelse
                                         </tbody>
                                     </table>
+                                    </div>
+                                        {{-- <!-- Pagination Links -->
+                                    <div class="d-flex justify-content-end">
+                                        {{ $tab2Sales->links('vendor.pagination.bootstrap-5')}}
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -1043,10 +1074,20 @@
     <script src="../assets/js/app.min.js"></script>
     <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        // Menginisialisasi tooltips jika diperlukan
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    </script>
+
 
     <!-- Tambahkan JavaScript Bootstrap dan jQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> --}}
 
     <script>
         function previewImage(event) {

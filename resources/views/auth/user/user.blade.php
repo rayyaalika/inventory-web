@@ -201,7 +201,7 @@
                   </select>
                 </div> --}}
               </div>
-
+              <div class="table-responsive">
                 <table class="table table-hover">
                   <thead>
                     <tr>
@@ -237,10 +237,11 @@
                     @endforeach  
                   </tbody>
                 </table>
-                {{-- <!-- Pagination Links -->
-                <div class="d-flex justify-content-center">
-                  {{ $users->links() }}
-              </div> --}}
+              </div>
+              <!-- Pagination Links -->
+              <div class="d-flex justify-content-end">
+                  {{ $users->links('vendor.pagination.bootstrap-5')}}
+              </div>
             </div>
           </div>
           

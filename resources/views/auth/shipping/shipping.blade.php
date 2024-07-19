@@ -216,1212 +216,1336 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @foreach ($salesData as $sales)
-                              <tr>
-                                <td>
-                                  <div class="btn-group">
-                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                      <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                      <li><a class="dropdown-item"
-                                              href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                              Sales</a></li>
-                                      <li><a class="dropdown-item" href=""
-                                              data-toggle="modal"
-                                              data-target="#paymentSalesModal{{ $sales->id_sales }}">
-                                              Resi & Payment</a></li>
-                                      <li><a class="dropdown-item text-danger"
-                                              href="" data-toggle="modal"
-                                              data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
-                                              Sales</a>
-                                      </li>
-                                  </ul>
-                                  </div>
-                                </td>
-                                <td>{{ $sales->transaction_date }}</td>
-                                <td>{{ $sales->sq_numbering }}</td>
-                                <td>{{ $sales->socmed_type }}</td>
-                                <td>{{ $sales->customer_name }}</td>
-                                <td>{{ $sales->sales_note }}</td>
-                                <td>{{ $sales->total_order }}</td>
-                                <td>{{ $sales->delivery_company }}</td>
-                                <td>{{ $sales->resi_number }}</td>
-                                <td>
-                                  <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                    @csrf
-                                  <div class="d-flex align-items-center gap-2">
-                                    <div class="btn-group-a">
-                                      @php
-                                          $statusClass = '';
-                                          switch ($sales->sales_status) {
-                                              case 'Pending Address':
-                                                  $statusClass = 'btn-warning';
-                                                  break;
-                                              case 'Pending Shipment':
-                                                  $statusClass = 'btn-danger';
-                                                  break;
-                                              case 'Waiting List':
-                                                  $statusClass = 'btn-success';
-                                                  break;
-                                              case 'Ready to Approved':
-                                                  $statusClass = 'btn-info';
-                                                  break;
-                                              case 'Collected':
-                                                  $statusClass = 'btn-primary';
-                                                  break;
-                                              case 'Completed':
-                                                  $statusClass = 'btn-dark';
-                                                  break;
-                                              default:
-                                                  $statusClass = '';
-                                                  break;
-                                          }
-                                      @endphp                                      
-                                      <button id="dropdown-toggle{{$sales->id_sales}}" type="button" class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown" aria-expanded="false">
-                                          {{$sales->sales_status}}
-                                      </button>                                    
-                                      <ul class="dropdown-menu">
-                                        <li><button class="dropdown-item" type="button" value="Pending Address" onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button></li>
-                                        <li><button class="dropdown-item" type="button" value="Pending Shipment" onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button></li>
-                                        <li><button class="dropdown-item" type="button" value="Waiting List" onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                        <li><button class="dropdown-item" type="button" value="Ready to Approved" onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button></li>
-                                        <li><button class="dropdown-item" type="button" value="Collected" onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                        <li><button class="dropdown-item" type="button" value="Completed" onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                      </ul>
-                                    </div>
-                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status" value="{{$sales->sales_status}}">
-                                  </div>
-                                </form>
-                                </td>
-                                <td>
-                                  <div class="d-flex align-items-center gap-2">
-                                    @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' || $sales->sales_status == 'Waiting List')
-                                    <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                    @else
-                                    <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                    @endif
-                                  </div>
-                                </td>
-                              </tr>
-                              @endforeach
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($salesData as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item"
+                                                        href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                        Sales</a></li>
+                                                <li><a class="dropdown-item" href=""
+                                                        data-toggle="modal"
+                                                        data-target="#paymentSalesModal{{ $sales->id_sales }}">
+                                                        Resi & Payment</a></li>
+                                                <li><a class="dropdown-item text-danger"
+                                                        href="" data-toggle="modal"
+                                                        data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete
+                                                        Sales</a>
+                                                </li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                        <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                            @csrf
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="btn-group-a">
+                                            @php
+                                                $statusClass = '';
+                                                switch ($sales->sales_status) {
+                                                    case 'Pending Address':
+                                                        $statusClass = 'btn-warning';
+                                                        break;
+                                                    case 'Pending Shipment':
+                                                        $statusClass = 'btn-danger';
+                                                        break;
+                                                    case 'Waiting List':
+                                                        $statusClass = 'btn-success';
+                                                        break;
+                                                    case 'Ready to Approved':
+                                                        $statusClass = 'btn-info';
+                                                        break;
+                                                    case 'Collected':
+                                                        $statusClass = 'btn-primary';
+                                                        break;
+                                                    case 'Completed':
+                                                        $statusClass = 'btn-dark';
+                                                        break;
+                                                    default:
+                                                        $statusClass = '';
+                                                        break;
+                                                }
+                                            @endphp                                      
+                                            <button id="dropdown-toggle{{$sales->id_sales}}" type="button" class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{$sales->sales_status}}
+                                            </button>                                    
+                                            <ul class="dropdown-menu">
+                                                <li><button class="dropdown-item" type="button" value="Pending Address" onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button></li>
+                                                <li><button class="dropdown-item" type="button" value="Pending Shipment" onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button></li>
+                                                <li><button class="dropdown-item" type="button" value="Waiting List" onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                <li><button class="dropdown-item" type="button" value="Ready to Approved" onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button></li>
+                                                <li><button class="dropdown-item" type="button" value="Collected" onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                <li><button class="dropdown-item" type="button" value="Completed" onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                            </ul>
+                                            </div>
+                                            <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status" value="{{$sales->sales_status}}">
+                                        </div>
+                                        </form>
+                                        </td>
+                                        <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' || $sales->sales_status == 'Waiting List')
+                                            <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                            @else
+                                            <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                            @endif
+                                        </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination Links -->
+                            <div class="d-flex justify-content-end">
+                                {{ $salesData->links('vendor.pagination.bootstrap-5')}}
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($tab1Sales as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($tab1Sales as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($hlife as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($hlife as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($familymart as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($familymart as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($hct as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($hct as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab6" role="tabpanel" aria-labelledby="tab6-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($d711 as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($d711 as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab7" role="tabpanel" aria-labelledby="tab7-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($post as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($post as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab8" role="tabpanel" aria-labelledby="tab8-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($shopee as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($shopee as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab9" role="tabpanel" aria-labelledby="tab9-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($offline as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($offline as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab10" role="tabpanel" aria-labelledby="tab10-tab">
-                          <table class="table font-button mt-3">
-                            <thead>
-                              <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>SQ Numbering</th>
-                                <th>Socmed</th>
-                                <th>Customer Name</th>
-                                <th>Notes</th>
-                                <th>Total</th>
-                                <th>Delivery Method</th>
-                                <th>No Resi</th>
-                                <th>Status</th>
-                                <th>Aproved</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @forelse ($tab2Sales as $sales)
-                              <tr>
-                                  <td>
-                                      <div class="btn-group">
-                                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                              aria-expanded="false">
-                                              <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
-                                                      Sales</a></li>
-                                              <li><a class="dropdown-item" href="" data-toggle="modal"
-                                                      data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
-                                              <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
-                                                      data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
-                                          </ul>
-                                      </div>
-                                  </td>
-                                  <td>{{ $sales->transaction_date }}</td>
-                                  <td>{{ $sales->sq_numbering }}</td>
-                                  <td>{{ $sales->socmed_type }}</td>
-                                  <td>{{ $sales->customer_name }}</td>
-                                  <td>{{ $sales->sales_note }}</td>
-                                  <td>{{ $sales->total_order }}</td>
-                                  <td>{{ $sales->delivery_company }}</td>
-                                  <td>{{ $sales->resi_number }}</td>
-                                  <td>
-                                      <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
-                                          @csrf
-                                          <div class="d-flex align-items-center gap-2">
-                                              <div class="btn-group-a">
-                                                  @php
-                                                  $statusClass = '';
-                                                  switch ($sales->sales_status) {
-                                                      case 'Pending Address':
-                                                          $statusClass = 'btn-warning';
-                                                          break;
-                                                      case 'Pending Shipment':
-                                                          $statusClass = 'btn-danger';
-                                                          break;
-                                                      case 'Waiting List':
-                                                          $statusClass = 'btn-success';
-                                                          break;
-                                                      case 'Ready to Approved':
-                                                          $statusClass = 'btn-info';
-                                                          break;
-                                                      case 'Collected':
-                                                          $statusClass = 'btn-primary';
-                                                          break;
-                                                      case 'Completed':
-                                                          $statusClass = 'btn-dark';
-                                                          break;
-                                                      default:
-                                                          $statusClass = '';
-                                                          break;
-                                                  }
-                                                  @endphp
-                                                  <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
-                                                      class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
-                                                      aria-expanded="false">
-                                                      {{$sales->sales_status}}
-                                                  </button>
-                                                  <ul class="dropdown-menu">
-                                                      <li><button class="dropdown-item" type="button" value="Pending Address"
-                                                              onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Pending Shipment"
-                                                              onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Waiting List"
-                                                              onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Ready to Approved"
-                                                              onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
-                                                      </li>
-                                                      <li><button class="dropdown-item" type="button" value="Collected"
-                                                              onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
-                                                      <li><button class="dropdown-item" type="button" value="Completed"
-                                                              onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
-                                                  </ul>
-                                              </div>
-                                              <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
-                                                  value="{{$sales->sales_status}}">
-                                          </div>
-                                      </form>
-                                  </td>
-                                  <td>
-                                      <div class="d-flex align-items-center gap-2">
-                                          @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
-                                          $sales->sales_status == 'Waiting List')
-                                          <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
-                                          @else
-                                          <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
-                                          @endif
-                                      </div>
-                                  </td>
-                              </tr>
-                              @empty
-                              <tr>
-                                  <td colspan="11" class="text-center">No shipping data available</td>
-                              </tr>
-                              @endforelse
-                            </tbody>
-                          </table>
+                            <div class="table-responsive">
+                                <table class="table font-button mt-3">
+                                    <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>SQ Numbering</th>
+                                        <th>Socmed</th>
+                                        <th>Customer Name</th>
+                                        <th>Notes</th>
+                                        <th>Total</th>
+                                        <th>Delivery Method</th>
+                                        <th>No Resi</th>
+                                        <th>Status</th>
+                                        <th>Aproved</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($tab2Sales as $sales)
+                                    <tr>
+                                        <td>
+                                            {{-- <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="ti ti-list nav-small-cap-icon fs-3" data-toggle="tooltip" title="Actions"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit
+                                                            Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal"
+                                                            data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal"
+                                                            data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div> --}}
+                                            <div class="btn-group">
+                                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots nav-small-cap-icon fs-5" data-toggle="tooltip" title="Actions"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url('/sales/' . $sales->id_sales) }}">Edit Sales</a></li>
+                                                    <li><a class="dropdown-item" href="" data-toggle="modal" data-target="#paymentSalesModal{{ $sales->id_sales }}">Resi & Payment</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="" data-toggle="modal" data-target="#deleteSalesModal{{ $sales->id_sales }}">Delete Sales</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ $sales->transaction_date }}</td>
+                                        <td>{{ $sales->sq_numbering }}</td>
+                                        <td>{{ $sales->socmed_type }}</td>
+                                        <td>{{ $sales->customer_name }}</td>
+                                        <td>{{ $sales->sales_note }}</td>
+                                        <td>{{ $sales->total_order }}</td>
+                                        <td>{{ $sales->delivery_company }}</td>
+                                        <td>{{ $sales->resi_number }}</td>
+                                        <td>
+                                            <form action="{{ url('/shipping/sales-status-update/'.$sales->id_sales) }}" method="POST">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group-a">
+                                                        @php
+                                                        $statusClass = '';
+                                                        switch ($sales->sales_status) {
+                                                            case 'Pending Address':
+                                                                $statusClass = 'btn-warning';
+                                                                break;
+                                                            case 'Pending Shipment':
+                                                                $statusClass = 'btn-danger';
+                                                                break;
+                                                            case 'Waiting List':
+                                                                $statusClass = 'btn-success';
+                                                                break;
+                                                            case 'Ready to Approved':
+                                                                $statusClass = 'btn-info';
+                                                                break;
+                                                            case 'Collected':
+                                                                $statusClass = 'btn-primary';
+                                                                break;
+                                                            case 'Completed':
+                                                                $statusClass = 'btn-dark';
+                                                                break;
+                                                            default:
+                                                                $statusClass = '';
+                                                                break;
+                                                        }
+                                                        @endphp
+                                                        <button id="dropdown-toggle{{$sales->id_sales}}" type="button"
+                                                            class="btn dropdown-toggle {{$statusClass}}" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{$sales->sales_status}}
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button class="dropdown-item" type="button" value="Pending Address"
+                                                                    onclick="selectStatus('1', {{$sales->id_sales}})">Pending Address</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Pending Shipment"
+                                                                    onclick="selectStatus('2', {{$sales->id_sales}})">Pending Shipment</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Waiting List"
+                                                                    onclick="selectStatus('3', {{$sales->id_sales}})">Waiting List</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Ready to Approved"
+                                                                    onclick="selectStatus('4', {{$sales->id_sales}})">Ready to Approved</button>
+                                                            </li>
+                                                            <li><button class="dropdown-item" type="button" value="Collected"
+                                                                    onclick="selectStatus('5', {{$sales->id_sales}})">Collected</button></li>
+                                                            <li><button class="dropdown-item" type="button" value="Completed"
+                                                                    onclick="selectStatus('6', {{$sales->id_sales}})">Completed</button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" id="salesStatusInput_{{$sales->id_sales}}" name="sales_status"
+                                                        value="{{$sales->sales_status}}">
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if ($sales->sales_status == 'Pending Address' || $sales->sales_status == 'Pending Shipment' ||
+                                                $sales->sales_status == 'Waiting List')
+                                                <span class="badge bg-primary rounded-3 fw-semibold">Draft</span>
+                                                @else
+                                                <span class="badge bg-success rounded-3 fw-semibold">Shipping</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="11" class="text-center">No shipping data available</td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1768,7 +1892,7 @@
 
   <!-- Tambahkan JavaScript Bootstrap dan jQuery -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> --}}
 
   <script>
       function previewImage(event) {
@@ -1904,66 +2028,66 @@
     });
   </script>
 
-<script>
-  function selectStatus(status, id) {
-      fetch(`/shipping/sales-status-update/${id}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({
-              sales_status: status
-          })
-      })
-      .then(response => {
-          if (!response.ok) {
-              throw new Error('Failed to update sales status');
-          }
-          const dropdownToggle = document.querySelector(`#dropdown-toggle${id}`); // Menggunakan ID unik untuk elemen dropdown
-          dropdownToggle.classList.remove(
-            'btn-warning',
-            'btn-danger', // Hapus kelas Bootstrap lainnya jika ada
-            'btn-success', // Hapus kelas Bootstrap lainnya jika ada
-            'btn-info', // Hapus kelas Bootstrap lainnya jika ada
-            'btn-primary' // Hapus kelas Bootstrap lainnya jika ada
-        );
-        switch (status) {
-            case '1':
-                dropdownToggle.textContent = 'Pending Address';
-                dropdownToggle.classList.add('btn-warning');
-                break;
-            case '2':
-                dropdownToggle.textContent = 'Pending Shipment';
-                dropdownToggle.classList.add('btn-danger'); // Ganti dengan kelas warna yang sesuai
-                break;
-            case '3':
-                dropdownToggle.textContent = 'Waiting List';
-                dropdownToggle.classList.add('btn-success'); // Ganti dengan kelas warna yang sesuai
-                break;
-            case '4':
-                dropdownToggle.textContent = 'Ready to Approved';
-                dropdownToggle.classList.add('btn-info'); // Ganti dengan kelas warna yang sesuai
-                break;
-            case '5':
-                dropdownToggle.textContent = 'Collected';
-                dropdownToggle.classList.add('btn-primary'); // Ganti dengan kelas warna yang sesuai
-                break;
-            case '6':
-                dropdownToggle.textContent = 'Completed';
-                dropdownToggle.classList.add('btn-dark'); // Ganti dengan kelas warna yang sesuai
-                break;
-            default:
-                break;
-          }
-          
-          window.location.reload();
-      })
-      .catch(error => {
-          console.error('Error updating sales status:', error);
-      });
-  }
-</script>
+    <script>
+    function selectStatus(status, id) {
+        fetch(`/shipping/sales-status-update/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                sales_status: status
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update sales status');
+            }
+            const dropdownToggle = document.querySelector(`#dropdown-toggle${id}`); // Menggunakan ID unik untuk elemen dropdown
+            dropdownToggle.classList.remove(
+                'btn-warning',
+                'btn-danger', // Hapus kelas Bootstrap lainnya jika ada
+                'btn-success', // Hapus kelas Bootstrap lainnya jika ada
+                'btn-info', // Hapus kelas Bootstrap lainnya jika ada
+                'btn-primary' // Hapus kelas Bootstrap lainnya jika ada
+            );
+            switch (status) {
+                case '1':
+                    dropdownToggle.textContent = 'Pending Address';
+                    dropdownToggle.classList.add('btn-warning');
+                    break;
+                case '2':
+                    dropdownToggle.textContent = 'Pending Shipment';
+                    dropdownToggle.classList.add('btn-danger'); // Ganti dengan kelas warna yang sesuai
+                    break;
+                case '3':
+                    dropdownToggle.textContent = 'Waiting List';
+                    dropdownToggle.classList.add('btn-success'); // Ganti dengan kelas warna yang sesuai
+                    break;
+                case '4':
+                    dropdownToggle.textContent = 'Ready to Approved';
+                    dropdownToggle.classList.add('btn-info'); // Ganti dengan kelas warna yang sesuai
+                    break;
+                case '5':
+                    dropdownToggle.textContent = 'Collected';
+                    dropdownToggle.classList.add('btn-primary'); // Ganti dengan kelas warna yang sesuai
+                    break;
+                case '6':
+                    dropdownToggle.textContent = 'Completed';
+                    dropdownToggle.classList.add('btn-dark'); // Ganti dengan kelas warna yang sesuai
+                    break;
+                default:
+                    break;
+            }
+            
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating sales status:', error);
+        });
+    }
+    </script>
 
 
   <!-- Bootstrap JS and jQuery -->
