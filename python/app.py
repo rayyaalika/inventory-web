@@ -96,9 +96,9 @@ def predict():
 
     # Membuat model LSTM
     model = Sequential()
-    model.add(LSTM(200, return_sequences=True, input_shape=(look_back, 1)))
+    model.add(LSTM(100, return_sequences=True, input_shape=(look_back, 1)))
     model.add(Dropout(0.8))
-    model.add(LSTM(200, return_sequences=False))
+    model.add(LSTM(100, return_sequences=False))
     model.add(Dropout(0.8))
     model.add(Dense(1))
 

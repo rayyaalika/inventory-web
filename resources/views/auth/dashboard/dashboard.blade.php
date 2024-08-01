@@ -305,7 +305,7 @@
                                 @if (!empty($selectedParameter))
                                     <div class="d-flex flex-row">
                                         <div id="chartpred" style="flex: 4;"></div>
-                                        <div class="table responsive ms-3" style="flex: 1;">
+                                        <div class="table responsive ms-3" style="flex: 1; max-height: 400px; overflow-y: auto;">
                                             <table class="table table-bordered font-button">
                                                 <thead>
                                                     <tr class="pt-1 pb-1 ps-0 pe-0">
