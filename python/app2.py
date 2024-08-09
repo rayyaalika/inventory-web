@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 def set_seed(seed=42):
     import random
+    import tensorflow as tf
     random.seed(seed)
     np.random.seed(seed)
     tf.random.set_seed(seed)
@@ -37,6 +38,13 @@ def load_data_from_db():
     conn.close()
     return df
 
+def create_dataset(data, look_back=1):
+    dataX, dataY = [], []
+    for i in range(len(data) - look_back):
+        dataX.append(data.iloc[i:(i + look_back)].values)
+        dataY.append(data.iloc[i + look_back])
+    return np.array(dataX), np.array(dataY)
+
 def preprocess_data(df):
     df['date'] = pd.to_datetime(df['date'])
     df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')
@@ -57,13 +65,6 @@ def preprocess_data(df):
     
     return daily_data
 
-def create_dataset(data, look_back=1):
-    dataX, dataY = [], []
-    for i in range(len(data) - look_back):
-        dataX.append(data.iloc[i:(i + look_back)].values)
-        dataY.append(data.iloc[i + look_back])
-    return np.array(dataX), np.array(dataY)
-
 @app.route('/update_model', methods=['POST'])
 def update_model():
     df = load_data_from_db()
@@ -71,54 +72,79 @@ def update_model():
     
     if df.empty:
         return jsonify({"error": "No valid data after filtering."})
-    
-    # Normalisasi data
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    df['quantity'] = scaler.fit_transform(df[['quantity']])
-    
-    # Gunakan seluruh data untuk pelatihan
-    look_back = 7  # Menggunakan window size yang sama untuk semua item
-    X, y = create_dataset(df['quantity'], look_back)
 
-    if X.size == 0 or y.size == 0:
-        return jsonify({"error": "Not enough data to train the model."})
+    # Ambil semua item yang unik
+    items = df['item_name'].unique()
 
-    # Reshape input menjadi [samples, time steps, features]
-    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
+    for item in items:
+        print(f"Training model for item: {item}")
+        
+        # Filter data untuk item yang dipilih
+        article_data = df[df['item_name'] == item]
 
-    # Membagi data menjadi training dan testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        if article_data.empty:
+            print(f"No data available for item '{item}'. Skipping...")
+            continue
 
-    # Membuat model LSTM
-    model = Sequential()
-    model.add(LSTM(100, return_sequences=True, input_shape=(look_back, 1)))
-    model.add(Dropout(0.8))
-    model.add(LSTM(100, return_sequences=False))
-    model.add(Dropout(0.8))
-    model.add(Dense(1))
+        # Menentukan frekuensi data
+        article_data.set_index('date', inplace=True)
+        article_data = article_data.resample('D').sum().fillna(0)
 
-    # Kompilasi model
-    model.compile(loss='mean_squared_error', optimizer='adam')
+        if article_data.empty:
+            print(f"No daily data available for item '{item}'. Skipping...")
+            continue
 
-    # Gunakan ModelCheckpoint untuk menyimpan model terbaik
-    model_path = 'models/all_items_best_model.keras'
-    checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
+        num_days = len(article_data)
+        print(f"Data available for item '{item}': {num_days} days")
 
-    # Melatih model LSTM dan menyimpan riwayat loss
-    model.fit(X_train, y_train, epochs=50, batch_size=256, verbose=2, validation_data=(X_test, y_test), callbacks=[checkpoint])
+        # Normalisasi data
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        article_data['quantity'] = scaler.fit_transform(article_data[['quantity']])
 
-    return jsonify({"message": "Model gabungan untuk semua item telah berhasil dibuat dan disimpan."})
+        # Gunakan seluruh data untuk pelatihan
+        look_back = min(num_days, 7)
+        X, y = create_dataset(article_data['quantity'], look_back)
+
+        if X.size == 0 or y.size == 0:
+            print(f"Not enough data to train model for item '{item}'. Skipping...")
+            continue
+
+        # Reshape input menjadi [samples, time steps, features]
+        X = np.reshape(X, (X.shape[0], X.shape[1], 1))
+
+        # Membagi data menjadi training dan testing set
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Membuat model LSTM
+        model = Sequential()
+        model.add(LSTM(100, return_sequences=True, input_shape=(look_back, 1)))
+        model.add(Dropout(0.8))
+        model.add(LSTM(100, return_sequences=False))
+        model.add(Dropout(0.8))
+        model.add(Dense(1))
+
+        # Kompilasi model
+        model.compile(loss='mean_squared_error', optimizer='adam')
+
+        # Gunakan ModelCheckpoint untuk menyimpan model terbaik
+        model_path = f'models/{item.replace(" ", "_")}_best_model.keras'
+        checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
+
+        # Melatih model LSTM dan menyimpan riwayat loss
+        model.fit(X_train, y_train, epochs=10, batch_size=1, verbose=2, validation_data=(X_test, y_test), callbacks=[checkpoint])
+
+    return jsonify({"message": "Model untuk semua item telah berhasil dibuat dan disimpan."})
 
 @app.route('/superadmin', methods=['POST'])
 def predict():
     data = request.get_json()
     article_input = data.get('article')
     
-    # Memuat model gabungan
-    model_path = 'models/all_items_best_model.keras'
+    # Memuat model yang sesuai dengan artikel
+    model_path = f'models/{article_input.replace(" ", "_")}_best_model.keras'
     
     if not os.path.exists(model_path):
-        return jsonify({"error": "Model gabungan tidak ditemukan."})
+        return jsonify({"error": f"Model untuk artikel '{article_input}' tidak ditemukan."})
 
     model = load_model(model_path)
     
@@ -172,6 +198,7 @@ def predict():
         'predictions': future_predictions.flatten().tolist(),
         'dates': predicted_dates.strftime('%Y-%m-%d').tolist()
     })
+
 
 if __name__ == '__main__':
     if not os.path.exists('models'):

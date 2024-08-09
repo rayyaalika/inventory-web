@@ -188,9 +188,27 @@
         <div class="col-lg-12 d-flex align-items-stretch">
             <div class="card w-100">
                 <div class="card-body">
+                  <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                     <div class="mb-3 mb-sm-0">
                         <h5 class="card-title fw-semibold">Product Prediction</h5>
                     </div>
+                    <form action="{{ route('updateModel') }}" method="POST" style="">
+                      @csrf
+                      <button type="submit" class="btn btn-secondary">Update Model</button>
+                    </form>
+                  </div>
+                    @if(session('success'))
+                      <div class="alert alert-success alert-dismissible fade show" role="alert">
+                          {{ session('success') }}
+                          <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    @endif
+                    @if(session('error'))
+                      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                          {{ session('error') }}
+                          <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    @endif
                     @if(session('alert'))
                       <div class="alert alert-warning alert-dismissible fade show" role="alert">
                           {{ session('alert') }}

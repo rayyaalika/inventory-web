@@ -65,8 +65,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales/get-product-details/{salesId}', [SalesController::class, 'getProductDetails']);
     Route::put('/sales/edit/{id}', [SalesController::class,'edit_sales']);
     Route::post('/sales/edit_sales/{id_sales}/upload-address-picture', [SalesController::class,'uploadAddressPicture']);
-
-
     Route::post('/sales/payment/{id}', [SalesController::class, 'update_payment'])->name('sales.payment.update');
 
     Route::post('/update-stock/{id}', [SalesController::class, 'updateStock']);
@@ -80,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/prediction', [PredictionController::class,'index'])->name('predictions');
     Route::post('/prediction/predict', [PredictionController::class,'predict'])->name('prediction.predict');
-
+    Route::post('/updateModel', [PredictionController::class, 'updateModel'])->name('updateModel');
 
 });
 

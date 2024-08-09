@@ -3,7 +3,7 @@ import mysql.connector
 from mysql.connector import Error
 
 # Baca file Excel
-file_path = 'C:/Users/User/Downloads/item.xlsx'
+file_path = 'C:/Users/User/Downloads/item_1tahun.xlsx'
 df = pd.read_excel(file_path)
 
 # Buat koneksi ke database MySQL
@@ -25,6 +25,7 @@ try:
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS bakery_sale (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            id_bakery INT,
             date DATE,
             item_name VARCHAR(255),
             quantity INT
@@ -37,8 +38,8 @@ try:
         # Masukkan data ke tabel
         for i, row in df.iterrows():
             cursor.execute("""
-            INSERT INTO bakery_sale (date, item_name, quantity) 
-            VALUES (%s, %s, %s)
+            INSERT INTO bakery_sale (id_bakery, date, item_name, quantity) 
+            VALUES (%s, %s, %s, %s)
             """, tuple(row))
 
         connection.commit()
