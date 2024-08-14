@@ -1,14 +1,14 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import ModelCheckpoint
+import joblib
 import os
 import mysql.connector
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import LSTM, Dense
+import tensorflow as tf
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -42,136 +42,117 @@ def preprocess_data(df):
     df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')
     df = df.dropna()  # Drop rows with NaN values
     
-    # Hapus duplikat dengan menjumlahkan quantity per item_name, date, dan id_bakery
     df = df.groupby(['item_name', 'date', 'id_bakery']).agg({'quantity': 'sum'}).reset_index()
-    
-    # Set 'date' as the index
     df.set_index('date', inplace=True)
-    
-    # Agregasi lebih lanjut berdasarkan item_name dan tanggal untuk data harian
-    daily_data = df.groupby(['item_name']).resample('D').sum().fillna(0).reset_index()
-
-    print("Preprocessed data:")
-    print(daily_data.head())
-    print(f"Total number of records after preprocessing: {len(daily_data)}")
-    
+    daily_data = df.groupby(['item_name']).resample('D').sum().reset_index(level=0, drop=True).fillna(0).reset_index()
     return daily_data
 
-def create_dataset(data, look_back=1):
+def create_dataset(data, look_back=7):
     dataX, dataY = [], []
     for i in range(len(data) - look_back):
-        dataX.append(data.iloc[i:(i + look_back)].values)
-        dataY.append(data.iloc[i + look_back])
+        dataX.append(data[i:(i + look_back)])
+        dataY.append(data[i + look_back])
     return np.array(dataX), np.array(dataY)
+
+def build_model(input_shape):
+    model = Sequential()
+    model.add(LSTM(50, return_sequences=True, input_shape=input_shape))
+    model.add(LSTM(50))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
+def predict_sales(model, data, scaler, look_back, prediction_days):
+    dataX, _ = create_dataset(data, look_back)
+    dataX = np.reshape(dataX, (dataX.shape[0], look_back, 1))
+    
+    predictions = []
+    input_sequence = data[-look_back:]
+    
+    for _ in range(prediction_days):
+        input_sequence = np.reshape(input_sequence, (1, look_back, 1))
+        next_prediction = model.predict(input_sequence)[0][0]
+        predictions.append(next_prediction)
+        input_sequence = np.append(input_sequence[:, 1:, :], [[[next_prediction]]], axis=1)
+    
+    if scaler:
+        predictions = scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
+    
+    return predictions
+
+
+models = {}
 
 @app.route('/update_model', methods=['POST'])
 def update_model():
     df = load_data_from_db()
-    df = preprocess_data(df)
+    df_processed = preprocess_data(df)
     
-    if df.empty:
-        return jsonify({"error": "No valid data after filtering."})
+    look_back = 7
     
-    # Normalisasi data
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    df['quantity'] = scaler.fit_transform(df[['quantity']])
+    for item_name in df_processed['item_name'].unique():
+        df_item = df_processed[df_processed['item_name'] == item_name].copy()
+        df_item = df_item[['quantity']]
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        df_item['quantity'] = scaler.fit_transform(df_item[['quantity']])
+        
+        X, y = create_dataset(df_item['quantity'].values, look_back)
+        if X.shape[0] == 0 or X.shape[1] == 0:
+            # print(f"Skipping item: {item_name} due to insufficient data after preprocessing.")
+            continue
+        X = np.reshape(X, (X.shape[0], X.shape[1], 1))
+        
+        train_size = int(len(X) * 0.8)
+        X_train, X_test = X[:train_size], X[train_size:]
+        y_train, y_test = y[:train_size], y[train_size:]
+        
+        model = build_model((look_back, 1))
+        model.fit(X_train, y_train, epochs=20, batch_size=512, validation_data=(X_test, y_test))
+        
+        models[item_name] = (model, scaler)
     
-    # Gunakan seluruh data untuk pelatihan
-    look_back = 7  # Menggunakan window size yang sama untuk semua item
-    X, y = create_dataset(df['quantity'], look_back)
-
-    if X.size == 0 or y.size == 0:
-        return jsonify({"error": "Not enough data to train the model."})
-
-    # Reshape input menjadi [samples, time steps, features]
-    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
-
-    # Membagi data menjadi training dan testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Membuat model LSTM
-    model = Sequential()
-    model.add(LSTM(100, return_sequences=True, input_shape=(look_back, 1)))
-    model.add(Dropout(0.8))
-    model.add(LSTM(100, return_sequences=False))
-    model.add(Dropout(0.8))
-    model.add(Dense(1))
-
-    # Kompilasi model
-    model.compile(loss='mean_squared_error', optimizer='adam')
-
-    # Gunakan ModelCheckpoint untuk menyimpan model terbaik
-    model_path = 'models/all_items_best_model.keras'
-    checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
-
-    # Melatih model LSTM dan menyimpan riwayat loss
-    model.fit(X_train, y_train, epochs=50, batch_size=256, verbose=2, validation_data=(X_test, y_test), callbacks=[checkpoint])
-
-    return jsonify({"message": "Model gabungan untuk semua item telah berhasil dibuat dan disimpan."})
+    # Save all models and scalers to a single .pkl file
+    joblib.dump(models, 'models/models_dicts.pkl')
+    
+    return jsonify({'message': 'Models updated successfully'}), 200
 
 @app.route('/superadmin', methods=['POST'])
 def predict():
-    data = request.get_json()
-    article_input = data.get('article')
+    item_name_code = request.json.get('item_name')
+    prediction_days = 7
     
-    # Memuat model gabungan
-    model_path = 'models/all_items_best_model.keras'
+    if not os.path.exists('D:/inventory-web/models/models_dicts.pkl'):
+        return jsonify({'error': 'Models file not found'}), 503
+
+    models = joblib.load('D:/inventory-web/models/models_dicts.pkl')
     
-    if not os.path.exists(model_path):
-        return jsonify({"error": "Model gabungan tidak ditemukan."})
+    if item_name_code in models:
+        model, scaler = models[item_name_code]
+        df = load_data_from_db()
+        df_processed = preprocess_data(df)
+        
+        df_item = df_processed[df_processed['item_name'] == item_name_code].copy()
+        df_date = df_item[['date']]
+        df_item = df_item[['quantity']]
+        
+        if len(df_item) < 7:
+            return jsonify({'error': 'Insufficient data for prediction'}), 400
+        
+        df_item['quantity'] = scaler.transform(df_item[['quantity']])
+        
+        predictions = predict_sales(model, df_item['quantity'].values, scaler, 7, prediction_days)
 
-    model = load_model(model_path)
+         # Ambil tanggal terakhir dari data
+        last_date = pd.to_datetime(df_date.iloc[-1].date)
     
-    # Load data for the specified article
-    df = load_data_from_db()
-    df = df[df['item_name'] == article_input]
-    df = preprocess_data(df)
-    
-    if df.empty:
-        return jsonify({"error": f"Tidak ada data untuk artikel '{article_input}'."})
-
-    # Mengatur indeks sebagai datetime dan menjumlahkan pembelian produk per bulan
-    df.set_index('date', inplace=True)
-    df['month'] = df.index.to_period('M')
-    monthly_data = df.groupby(['item_name', 'month']).agg({'quantity': 'sum'}).reset_index()
-    monthly_data['month'] = monthly_data['month'].dt.to_timestamp()
-
-    # Tambahkan bulan yang tidak ada dengan nilai 0
-    all_months = pd.date_range(start=monthly_data['month'].min(), end=monthly_data['month'].max(), freq='M')
-    monthly_data = monthly_data.set_index('month').reindex(all_months, fill_value=0).reset_index()
-    monthly_data['item_name'] = article_input
-    monthly_data.set_index('index', inplace=True)
-
-    # Normalisasi data
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    monthly_data['quantity'] = scaler.fit_transform(monthly_data[['quantity']])
-
-    # Menggunakan seluruh data yang tersedia untuk memprediksi
-    look_back = len(monthly_data)
-    dataX = np.array(monthly_data['quantity']).reshape((1, look_back, 1))
-
-    # Prediksi untuk 7 hari ke depan
-    future_input = dataX
-    future_predictions = []
-
-    for _ in range(7):
-        next_prediction = model.predict(future_input)
-        future_predictions.append(next_prediction)
-        future_input = np.append(future_input[:, 1:, :], next_prediction.reshape((1, 1, 1)), axis=1)
-
-    # Balikkan skala prediksi ke nilai aslinya
-    future_predictions = np.array(future_predictions).reshape(7, 1)
-    future_predictions = scaler.inverse_transform(future_predictions)
-
-    # Create dates for predictions
-    last_date = monthly_data.index[-1]
-    predicted_dates = pd.date_range(start=last_date + pd.DateOffset(days=1), periods=7)
-
-    # Return predictions and dates
-    return jsonify({
-        'predictions': future_predictions.flatten().tolist(),
-        'dates': predicted_dates.strftime('%Y-%m-%d').tolist()
-    })
+        future_dates = [last_date + timedelta(days=i) for i in range(1, len(predictions) + 1)]
+        
+        return jsonify({
+            'predictions': predictions.tolist(),
+            'dates': future_dates
+        }), 200
+    else:
+        return jsonify({'error': 'Model for the specified item not found'}), 422
 
 if __name__ == '__main__':
     if not os.path.exists('models'):

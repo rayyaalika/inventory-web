@@ -478,14 +478,21 @@
     <script>
         // Ambil data dari PHP ke JavaScript
         var predictionsData = @json($predictionsData ?? []);
+        var realData = @json($realData ?? []);
 
         // Persiapkan data untuk chart
         var chartData = {
             series: [{
-                name: "{{ $selectedParameter }}",
+                name: "{{ $selectedParameter }} PREDICT",
                 data: predictionsData.length ? predictionsData.map(data => ({
                     x: new Date(data.date),
                     y: data.value
+                })) : []
+            },{
+                name: "{{ $selectedParameter }} REAL",
+                data: realData.length ? realData.map(data => ({
+                    x: new Date(data.date),
+                    y: data.quantity
                 })) : []
             }],
             chart: {
@@ -510,7 +517,7 @@
             xaxis: {
                 type: 'datetime',
                 labels: {
-                    format: 'MMM' // Format tampilan bulan (Jan, Feb, Mar, ...)
+                    format: 'ddd' // Format tampilan bulan (Jan, Feb, Mar, ...)
                 }
                 // title: {
                 //     text: 'Date'

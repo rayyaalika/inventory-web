@@ -41,7 +41,7 @@ class PredictionController extends Controller
     }
 
     $response = Http::timeout(180)->post('http://localhost:5000/superadmin', [
-        'article' => $article,
+        'item_name' => $article,
     ]);
 
     if ($response->successful()) {
@@ -54,28 +54,28 @@ class PredictionController extends Controller
             // Convert date format for display
             $formattedDates = [];
             foreach ($dates as $date) {
-                $formattedDates[] = date('d-m-Y', strtotime($date));
+                $formattedDates[] = date('Y-m-d', strtotime($date));
             }
 
             // Debugging: Check predictions and dates
-            dd([
-                'item_name' => $article,
-                'dates' => $formattedDates,
-                'predictions' => $predictions,
-            ]);
+            // dd([
+            //     'item_name' => $article,
+            //     'dates' => $formattedDates,
+            //     'predictions' => $predictions,
+            // ]);
 
-            foreach ($dates as $index => $date) {
+            foreach ($formattedDates as $index => $date) {
                 Forecasting::create([
                     'date' => $date,
                     'parameter' => $article,
-                    'value' => $predictions[$index],
+                    'value' => $predictions[$index][0],
                 ]);
             }
         } else {
             return redirect()->back()->with('error', 'Item not found');
         }
     } else {
-        return redirect()->back()->with('error', 'Product not found');
+        return redirect()->back()->with('error', ''.$response->json().'');
     }
 
     return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
