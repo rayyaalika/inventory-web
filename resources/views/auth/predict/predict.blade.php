@@ -192,7 +192,7 @@
                     <div class="mb-3 mb-sm-0">
                         <h5 class="card-title fw-semibold">Product Prediction</h5>
                     </div>
-                    <form action="{{ route('updateModel') }}" method="POST" style="">
+                    <form action="{{ route('updateModel') }}" method="POST" style="" id="updateModelForm">
                       @csrf
                       <button type="submit" class="btn btn-secondary">Update Model</button>
                     </form>
@@ -329,6 +329,9 @@
 
   <script>
     document.getElementById('predictionForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+    document.getElementById('updateModelForm').addEventListener('submit', function() {
         document.getElementById('loadingOverlay').style.display = 'flex';
     });
     </script>

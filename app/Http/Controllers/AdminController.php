@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Forecasting;
+use App\Models\bakerysales;
 use App\Models\Salesquotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,9 +68,26 @@ class AdminController extends Controller
         // If a parameter is selected, filter the predictions based on that parameter
         if ($selectedParameter) {
             $predictions = Forecasting::where('parameter', $selectedParameter)->get();
+            $dates = $predictions->pluck('date')->toArray();
+
+            // Gunakan tanggal-tanggal ini dalam query whereIn untuk mendapatkan data dari bakerysales
+            $realdata = bakerysales::whereIn('date', $dates)
+            ->where('item_name', $selectedParameter)
+            ->selectRaw('date, SUM(quantity) as quantity')
+            ->groupBy('date')
+            ->get();
+            
+            // dd([
+            //     'predik' => $predictions,
+            //     'dates' => $dates,
+            //     'real' => $realdata,
+            // ]);
+
+
         } else {
             // If no parameter is selected, fetch all predictions
             $predictions = Forecasting::all();
+            $realdata=[];
         }
 
         // Mengirimkan data ke view
@@ -84,6 +102,7 @@ class AdminController extends Controller
             'selectitems' => $selectitem,
             'selectedParameter' => $selectedParameter,
             'predictionsData' => $predictions,
+            'realData' => $realdata,
         ]);
     }
 
